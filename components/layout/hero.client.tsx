@@ -17,6 +17,7 @@ import { HeroData } from "@/types/hero.types";
 import { ChevronDown, Sparkles, Music, Users, Star, Shield, Clock, Phone, CheckCircle2, Award, HeartHandshake } from "lucide-react";
 import { InstantQuoteButton } from "@/components/InstantQuoteButton";
 import { openLiveChat } from "@/lib/livechat";
+import ClientOnly from "@/components/ClientOnly";
 
 const HERO_BADGES: Record<string, { text: string; icon: "sparkles" | "music" | "users" }> = {
   home: { text: "Premium Fleet Rentals", icon: "sparkles" },
@@ -331,11 +332,15 @@ export function HeroClient({ hero, slideImageUrls }: HeroHeaderProps) {
                 source={`Hero Modal - ${modal.label}`}
                 className="flex-1 rounded-full"
               />
-              <Button asChild variant="outline" className="flex-1   hover:bg-white/10 rounded-full">
+
+
+              <Button asChild variant="outline" className="flex-1   rounded-full">
                 <Link href="tel:8885352566" >
                   Call Now
                 </Link>
               </Button>
+
+
             </div>
           </DialogContent>
         </Dialog>
