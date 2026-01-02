@@ -331,8 +331,8 @@ export function HeroClient({ hero, slideImageUrls }: HeroHeaderProps) {
                 source={`Hero Modal - ${modal.label}`}
                 className="flex-1 rounded-full"
               />
-              <Button asChild variant="outline" className="flex-1 border-white/20 text-white hover:bg-white/10 rounded-full">
-                <Link href="tel:8885352566">
+              <Button asChild variant="outline" className="flex-1 border-white/20  hover:bg-white/10 rounded-full">
+                <Link href="tel:8885352566" className='text-black'>
                   Call Now
                 </Link>
               </Button>
