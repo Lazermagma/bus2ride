@@ -230,7 +230,7 @@ function BookingStepModal({
           <Button
             variant="outline"
             onClick={onClose}
-            className="rounded-full border-white/20 text-white hover:bg-white/10"
+            className="rounded-full border-white/20 text-black hover:bg-white/10"
           >
             Close
           </Button>
@@ -392,7 +392,7 @@ export function TriviaBookingSection({
               <Button
                 asChild
                 variant="outline"
-                className="flex-1 rounded-full border-white/20 text-white hover:bg-white/10 transition-all"
+                className="flex-1 rounded-full border-white/20 text-black hover:bg-white/10 transition-all"
               >
                 <a href="tel:8885352566">
                   <Phone className="w-4 h-4 mr-2" />
