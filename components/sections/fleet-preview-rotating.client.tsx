@@ -147,6 +147,21 @@ function RotatingVehicleCard({
     return "/party-buses";
   };
 
+
+  function getVehicleTypeLink(type?: string | null) {
+    if (!type) return "/fleet";
+
+    if (type.includes("limo")) return "/limousines";
+    if (type.includes("coach")) return "/coach-buses";
+    if (type.includes("sprinter")) return "/sprinter-vans";
+    if (type.includes("suv")) return "/suvs";
+    if (type.includes("sedan")) return "/sedans";
+    if (type.includes("party")) return "/party-buses";
+
+    return "/fleet";
+  }
+
+
   return (
     <div
       key={animationKey}
@@ -263,42 +278,67 @@ function RotatingVehicleCard({
         </div>
       )}
 
-      {!hideButtons && (
-        <div className="p-4 pt-3 space-y-2">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
-                hover:bg-white hover:text-slate-900 transition-all"
-              asChild
-            >
-              <a href="tel:8885352566">
-                <Phone className="w-3 h-3 mr-1.5" />
-                Call
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
-                hover:bg-white hover:text-slate-900 transition-all"
-              asChild
-            >
-              <a href="mailto:info@bus2ride.com">
-                <Mail className="w-3 h-3 mr-1.5" />
-                Email
-              </a>
-            </Button>
-          </div>
-          <InstantQuoteButton 
-            source={`Homepage - ${vehicle.name}`} 
-            size="sm"
-            variant="pulse"
-            className="w-full rounded-lg text-xs"
-          />
+      <div className="flex flex-col">
+        <div className="w-full px-4 mt-2">
+          <Link
+            href={getVehicleTypeLink(vehicle.type)}
+            className="
+      block w-full
+      bg-white py-1.5 rounded-xl
+      text-black text-center font-semibold
+      animate-pulse
+      hover:animate-none hover:scale-[1.02]
+      transition
+    "
+          >
+            Learn more
+          </Link>
         </div>
-      )}
+
+
+
+        {!hideButtons && (
+          <div className="p-4 pt-3 space-y-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
+            hover:bg-white hover:text-slate-900 transition-all"
+                asChild
+              >
+                <a href="tel:8885352566">
+                  <Phone className="w-3 h-3 mr-1.5" />
+                  Call
+                </a>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
+            hover:bg-white hover:text-slate-900 transition-all"
+                asChild
+              >
+                <a href="mailto:info@bus2ride.com">
+                  <Mail className="w-3 h-3 mr-1.5" />
+                  Email
+                </a>
+              </Button>
+            </div>
+
+            <InstantQuoteButton
+              source={`Homepage - ${vehicle.name}`}
+              size="sm"
+              variant="pulse"
+              className="w-full rounded-lg text-xs"
+            />
+          </div>
+        )}
+
+      </div>
+
+
     </div>
   );
 }
