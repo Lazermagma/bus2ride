@@ -294,15 +294,21 @@ export function TriviaBookingSection({
               <h3 className="text-xl font-bold text-white">Transportation Trivia</h3>
             </div>
 
-            <div className="relative">
-              {triviaItems.map((item, idx) => (
-                <TriviaCard
-                  key={item.id}
-                  item={item}
-                  isActive={idx === currentIndex}
-                />
-              ))}
+            <div className="relative overflow-hidden">
+              <div
+                className="flex gap-4 transition-transform duration-500"
+                style={{
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                }}
+              >
+                {triviaItems.map((item) => (
+                  <div key={item.id} className="flex-shrink-0 w-full">
+                    <TriviaCard item={item} isActive={true} />
+                  </div>
+                ))}
+              </div>
             </div>
+
 
             <div className="flex items-center justify-center gap-4 mt-6">
               <button

@@ -161,6 +161,8 @@ export default async function Home() {
         subtitle="Fun facts about group travel and our simple 3-step booking process"
       />
 
+
+
       <PremiumDivider />
 
       <ReviewsSection reviews={reviews} />
