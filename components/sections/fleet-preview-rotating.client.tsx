@@ -362,6 +362,14 @@ export function FleetPreviewRotating({
     () => Array(vehiclesPerRow).fill(0)
   );
   const [isClient, setIsClient] = useState(false);
+  const derivedVehicleType =
+    vehicles.length > 0 && vehicles[0].type
+      ? vehicles[0].type
+      : null;
+
+  const vehicleTypeLabel = derivedVehicleType
+    ? getVehicleLabel(derivedVehicleType)
+    : "Vehicles";
 
   useEffect(() => {
     setIsClient(true);
@@ -427,12 +435,15 @@ export function FleetPreviewRotating({
             {showNavigation && viewAllLink && (
               <Link
                 href={viewAllLink}
-                className="group inline-flex items-center gap-2 text-sm font-medium text-blue-300 hover:text-white transition-colors"
+                className="group inline-flex items-center gap-2 text-lg  font-bold animate-pulse text-blue-300 hover:text-white transition-colors"
               >
-                <span>View all</span>
+    <span>
+      View 34 other {vehicleTypeLabel}
+    </span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             )}
+
           </div>
         )}
 
