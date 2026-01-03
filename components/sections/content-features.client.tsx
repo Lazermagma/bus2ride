@@ -104,7 +104,7 @@ export function WhyFeaturesGridClient({
       }}>
         <DialogContent className="w-full max-w-lg rounded-2xl p-0 shadow-2xl border-0
           bg-gradient-to-b from-slate-900 to-slate-950 text-white overflow-hidden">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_50%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(59,130,246,0.15),transparent_50%)] " />
 
           <DialogHeader className="relative flex items-center justify-between px-6 pt-6 pb-4">
             <div className="flex items-center gap-3">
@@ -123,16 +123,10 @@ export function WhyFeaturesGridClient({
               </DialogTitle>
             </div>
 
-            {/* Single X Button */}
-            <button
-              onClick={() => setOpen(false)}
-              className="absolute top-4 right-4 w-8 h-8 rounded-full
-                bg-white/10 hover:bg-white/20
-                flex items-center justify-center transition-colors"
-            >
-              <X className="w-4 h-4 text-white/70" />
-            </button>
+
+
           </DialogHeader>
+
 
           <div className="relative px-6 pb-6">
             <div className="rounded-xl bg-white/5 border border-white/10 p-5">
