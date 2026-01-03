@@ -435,7 +435,7 @@ export function FleetPreviewRotating({
             {showNavigation && viewAllLink && (
               <Link
                 href={viewAllLink}
-                className="group inline-flex items-center gap-2 text-lg  font-bold animate-pulse text-blue-300 hover:text-white transition-colors"
+                className="group inline-flex items-center gap-2 text-lg  font-bold  text-blue-300 hover:text-white transition-colors"
               >
     <span>
       View 34 other {vehicleTypeLabel}

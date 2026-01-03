@@ -15,6 +15,7 @@ import { getFacts } from "@/lib/data/facts";
 import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
 import { GlobalCTAs } from "@/components/GlobalCTAs";
+import ClientOnly from "@/components/ClientOnly";
 
 export const revalidate = 300;
 
@@ -128,7 +129,9 @@ export default async function Home() {
         <Hero slug="home" />
       </Suspense>
 
+
       <FleetSection />
+
 
       <GlobalCTAs source="Homepage - After Fleet" variant="banner" />
 
