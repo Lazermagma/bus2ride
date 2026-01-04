@@ -156,14 +156,14 @@ export function PollCard({
       style={{ opacity, backgroundColor: bgColor || "#273659" }} // fallback color for SSR
       className={cn(
         "transition-opacity duration-300 ease-out",
-        "h-full py-3 rounded-2xl border border-white/10 shadow-sm flex flex-col",
+        "h-full py-3 rounded-2xl border  border-white/35 shadow-sm flex flex-col",
         compact && "rounded-xl",
         backgroundClassName,
       )}
     >
       <CardHeader className={cn("pb-3", compact && "pb-2 px-3 pt-3")}>
         <CardTitle
-          className={cn("text-lg text-white", compact && "text-sm")}
+          className={cn("text-lg text-white font-bold", compact && "text-sm")}
         >
           {poll.question}
         </CardTitle>

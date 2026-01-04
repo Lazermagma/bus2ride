@@ -115,8 +115,8 @@ export function PollsColumnsClient({
           {!!columnTitles?.[colIdx] && (
             <div className="mb-3">
               <p
-                className="text-lg md:text-2xl font-semibold uppercase tracking-[0.2em] md:tracking-[0.35em]
-                  text-white/80"
+                className="text-lg md:text-2xl animate-pulse font-semibold  tracking-normal md:tracking-normal
+                  text-white"
               >
                 {columnTitles[colIdx]}
               </p>
@@ -130,14 +130,14 @@ export function PollsColumnsClient({
               }}
               onScroll={() => updateScrollMeta(colIdx)}
               className="h-[500px] md:h-[675px] overflow-y-scroll snap-y snap-mandatory
-                rounded-3xl border border-white/10 bg-white/5
+                rounded-3xl
                 polls-column-scroll"
             >
               {col.map((poll, idx) => (
                 <div
                   key={`${poll.id}-${idx}`}
                   data-poll-index={idx}
-                  className="h-[400px] md:h-[450px] snap-start snap-always p-3 md:p-4"
+                  className="h-[400px] md:h-[450px] snap-start snap-always py-3"
                 >
 
                   <PollCard

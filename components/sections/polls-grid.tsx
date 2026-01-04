@@ -148,14 +148,14 @@ export async function PollsGrid({
               <TrendingUp className="w-4 h-4 text-green-400" />
               <span className="text-sm text-white/80">{totalVotes.toLocaleString()}+ votes</span>
             </div>
-            <div className="flex items-center gap-2 px-4 py-2 rounded-full glass">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-full glass ">
               <MessageCircle className="w-4 h-4 text-blue-400" />
               <span className="text-sm text-white/80">{col1.length + col2.length + col3.length} questions</span>
             </div>
           </div>
         </div>
 
-        <div className="glass-panel rounded-3xl p-6 md:p-8 animate-fade-up-delay-1">
+        <div className="glass-panel rounded-3xl  p-6 md:p-8 animate-fade-up-delay-1">
           <PollsColumnsClient columns={columns} columnTitles={columnTitles} />
         </div>
 
