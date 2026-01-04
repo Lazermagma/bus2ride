@@ -124,7 +124,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 ];
 
 export default async function ReviewsPage() {
-  const reviews = (await getReviews(50)) ?? [];
+  const reviews = (await getReviews(100)) ?? [];
 
   return (
     <main className="bg-[#0a1628]">

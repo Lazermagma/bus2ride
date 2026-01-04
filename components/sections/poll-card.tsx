@@ -120,7 +120,7 @@ export function PollCard({
     <Card
       ref={ref} // 4. Attach the Ref here to track visibility
       className={cn(
-        `h-full rounded-2xl border border-white/10 bg-white/5 gap-2 shadow-sm
+        `h-full py-3 rounded-2xl border border-white/10 bg-white/5 gap-2 shadow-sm
         flex flex-col bg-[#273659]`,
         compact && "rounded-xl",
         backgroundClassName,
@@ -202,7 +202,7 @@ export function PollCard({
         )}
 
         {showEmbed && !compact && (
-          <div className="mt-4 pt-3 border-t border-white/10">
+          <div className="mt-4 pt-3 border-t border-white/10 ">
             <Button
               variant="ghost"
               size="sm"

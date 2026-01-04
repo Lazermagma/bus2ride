@@ -127,7 +127,7 @@ export async function PollsGrid({
       <div className="absolute inset-0 bg-mesh opacity-30" />
       <div className="absolute top-1/4 left-0 w-[500px] h-[500px] rounded-full bg-indigo-500/5 blur-[150px] pointer-events-none animate-orb-drift" />
       <div className="absolute bottom-1/4 right-0 w-[400px] h-[400px] rounded-full bg-blue-500/8 blur-[120px] pointer-events-none" />
-      
+
       <div className="relative container px-4 md:px-6 mx-auto max-w-7xl">
         <div className="text-center mb-12 animate-fade-up">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-4">
@@ -142,7 +142,7 @@ export async function PollsGrid({
           <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
             See what other riders are thinking. Cast your vote to reveal the results instantly.
           </p>
-          
+
           <div className="mt-8 flex items-center justify-center gap-6">
             <div className="flex items-center gap-2 px-4 py-2 rounded-full glass">
               <TrendingUp className="w-4 h-4 text-green-400" />

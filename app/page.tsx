@@ -17,6 +17,7 @@ import { LinkConstellation, type InternalLink, type ExternalLink } from "@/compo
 import { GlobalCTAs } from "@/components/GlobalCTAs";
 import ClientOnly from "@/components/ClientOnly";
 
+
 export const revalidate = 300;
 
 const TRIVIA_ITEMS: TriviaItem[] = [
@@ -120,7 +121,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 ];
 
 export default async function Home() {
-  const reviews = (await getReviews()) ?? [];
+  const reviews = (await getReviews(200)) ?? [];
   const facts = await getFacts("home", 6);
 
   return (
@@ -162,7 +163,6 @@ export default async function Home() {
       />
 
 
-
       <PremiumDivider />
 
       <ReviewsSection reviews={reviews} />
@@ -170,6 +170,8 @@ export default async function Home() {
       <GlobalCTAs source="Homepage - After Reviews" />
 
       <SectionDivider variant="gradient" />
+
+
 
       <PollsGrid
         category="home"
