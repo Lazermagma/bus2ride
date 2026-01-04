@@ -35,7 +35,7 @@ export function PollCard({
   const [embedCopied, setEmbedCopied] = React.useState(false);
 
   const options = poll.options ?? [];
-
+  const [bgColor, setBgColor] = React.useState<string>("");
   /* -----------------------------------------
      Intersection Observer (fade logic)
   ----------------------------------------- */
@@ -58,6 +58,11 @@ export function PollCard({
      View counter (fires once naturally)
   ----------------------------------------- */
   const hasLoggedViewRef = React.useRef(false);
+  React.useEffect(() => {
+    const colors = [ "#4300FF", "#FF0087", "#BC7AF9"];
+    const randomColor = colors[Math.floor(Math.random() * colors.length)];
+    setBgColor(randomColor);
+  }, []);
 
   React.useEffect(() => {
     if (visibility > 0.25 && !hasLoggedViewRef.current) {
@@ -148,10 +153,10 @@ export function PollCard({
   return (
     <Card
       ref={ref}
-      style={{ opacity }}
+      style={{ opacity, backgroundColor: bgColor || "#273659" }} // fallback color for SSR
       className={cn(
         "transition-opacity duration-300 ease-out",
-        "h-full py-3 rounded-2xl border border-white/10 bg-[#273659] shadow-sm flex flex-col",
+        "h-full py-3 rounded-2xl border border-white/10 shadow-sm flex flex-col",
         compact && "rounded-xl",
         backgroundClassName,
       )}
