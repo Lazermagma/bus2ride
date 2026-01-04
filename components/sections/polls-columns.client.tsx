@@ -139,6 +139,7 @@ export function PollsColumnsClient({
                   data-poll-index={idx}
                   className="h-[400px] md:h-[450px] snap-start snap-always p-3 md:p-4"
                 >
+
                   <PollCard
                     poll={poll}
                     advanceDelayMs={2000}
