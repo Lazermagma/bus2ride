@@ -74,28 +74,31 @@ function PollCard({
   };
 
   return (
-    <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-      <h4 className="text-white font-medium text-sm mb-3">{poll.question}</h4>
+    <div className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+      <h4 className="text-white font-medium text-base mb-4">{poll.question}</h4>
       
-      <div className="space-y-1.5">
+      <div className="space-y-2 mb-4">
         {options.map((option) => {
           const count = votes[option.id] ?? 0;
           const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
 
           return hasVoted ? (
-            <div key={option.id} className="space-y-0.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-white/80">{option.label}</span>
-                <span className="text-white/50">{percent}%</span>
+            <div key={option.id} className="space-y-1">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/90 font-medium">{option.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/70 text-xs">{count.toLocaleString()} votes</span>
+                  <span className="text-white/50 text-sm font-semibold">{percent}%</span>
+                </div>
               </div>
-              <Progress value={percent} className="h-1.5" />
+              <Progress value={percent} className="h-2" />
             </div>
           ) : (
             <button
               key={option.id}
               onClick={() => handleVote(option.id)}
               disabled={isVoting}
-              className="w-full text-left px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/80 text-xs transition-all disabled:opacity-50"
+              className="w-full text-left px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/90 text-sm transition-all disabled:opacity-50"
             >
               {option.label}
             </button>
@@ -103,31 +106,36 @@ function PollCard({
         })}
       </div>
 
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
-        {hasVoted ? (
-          <p className="text-xs text-emerald-400 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Voted!
-          </p>
-        ) : (
-          <p className="text-white/30 text-xs">{totalVotes.toLocaleString()} votes</p>
-        )}
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
+        <div className="flex items-center gap-3">
+          {hasVoted ? (
+            <p className="text-sm text-emerald-400 flex items-center gap-1.5 font-medium">
+              <CheckCircle2 className="w-4 h-4" /> Voted!
+            </p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-white/50" />
+              <p className="text-white/70 text-sm font-medium">{totalVotes.toLocaleString()} {totalVotes === 1 ? 'vote' : 'votes'}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
           {onEmbedLive && (
             <button 
               onClick={(e) => { e.stopPropagation(); onEmbedLive(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-xs"
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-sm font-medium w-full"
             >
-              <Code className="w-3 h-3" />
-              Embed Poll
+              <Code className="w-4 h-4" />
+              Embed Live Poll
             </button>
           )}
           {onEmbedResults && (
             <button 
               onClick={(e) => { e.stopPropagation(); onEmbedResults(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-xs"
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-sm font-medium w-full"
             >
-              <Eye className="w-3 h-3" />
-              Results
+              <Eye className="w-4 h-4" />
+              Embed Poll Results
             </button>
           )}
         </div>
@@ -430,7 +438,7 @@ function CityPollsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="w-[98vw] max-w-none max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10 mx-auto">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
@@ -449,7 +457,7 @@ function CityPollsModal({
         {onSwitchCategory && allCategories.length > 0 && (
           <div className="py-3 border-b border-white/10">
             <p className="text-white/50 text-xs mb-2">Or browse by category:</p>
-            <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+            <div className="flex flex-wrap gap-1.5  max-h-16 overflow-y-auto">
               {allCategories.slice(0, 8).map(cat => {
                 const CatIcon = ICON_MAP[cat.iconName] || Car;
                 return (
@@ -485,7 +493,7 @@ function CityPollsModal({
             </div>
           ) : polls.length > 0 ? (
             <>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {polls.map((poll) => (
                   <PollCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
                 ))}
@@ -626,7 +634,7 @@ function CategoryPollsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="w-[98vw] max-w-none max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10 mx-auto">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center`}>
@@ -668,7 +676,7 @@ function CategoryPollsModal({
             </div>
           ) : (
             <>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {polls.map((poll) => (
                   <PollCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
                 ))}

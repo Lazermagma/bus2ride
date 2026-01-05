@@ -40,9 +40,24 @@ export function FleetListRotating({ vehicles, title }: FleetListRotatingProps) {
 
   const filteredVehicles = React.useMemo(() => {
     return vehicles.filter((v) => {
-      const matchesSearch =
-        v.name.toLowerCase().includes(search.toLowerCase()) ||
-        (v.capacity && v.capacity.toLowerCase().includes(search.toLowerCase()));
+      // Text Search (Name, capacity, description, amenities, type, price)
+      const searchLower = search.toLowerCase();
+      const nameMatch = v.name.toLowerCase().includes(searchLower);
+      const capacityMatch = v.capacity?.toLowerCase().includes(searchLower) || false;
+      const descriptionMatch = v.description?.toLowerCase().includes(searchLower) || false;
+      
+      // Search through amenities
+      const amenitiesMatch = v.amenities?.some(amenity => 
+        amenity.toLowerCase().includes(searchLower)
+      ) || false;
+      
+      // Search through type
+      const typeMatch = v.type?.toLowerCase().includes(searchLower) || false;
+      
+      // Search through price
+      const priceMatch = v.price_hourly?.toLowerCase().includes(searchLower) || false;
+      
+      const matchesSearch = !search || nameMatch || capacityMatch || descriptionMatch || amenitiesMatch || typeMatch || priceMatch;
 
       const vehicleAmenitiesLower =
         v.amenities?.map((a) => a.toLowerCase()) || [];

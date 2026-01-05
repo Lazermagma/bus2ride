@@ -79,24 +79,24 @@ function PollResultCard({
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mt-3 pt-3 border-t border-white/10">
         <p className="text-white/30 text-xs">{totalVotes.toLocaleString()} votes</p>
         <div className="flex flex-wrap items-center gap-1.5">
-          {onEmbedLive && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); onEmbedLive(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
-            >
-              <Code className="w-3 h-3 flex-shrink-0" />
-              Embed Poll
-            </button>
-          )}
-          {onEmbedResults && (
-            <button 
-              onClick={(e) => { e.stopPropagation(); onEmbedResults(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
-            >
-              <Eye className="w-3 h-3 flex-shrink-0" />
-              Results
-            </button>
-          )}
+           {onEmbedLive && (
+             <button 
+               onClick={(e) => { e.stopPropagation(); onEmbedLive(poll); }}
+               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
+             >
+               <Code className="w-3 h-3 flex-shrink-0" />
+               Embed Live Poll
+             </button>
+           )}
+           {onEmbedResults && (
+             <button 
+               onClick={(e) => { e.stopPropagation(); onEmbedResults(poll); }}
+               className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
+             >
+               <Eye className="w-3 h-3 flex-shrink-0" />
+               Embed Poll Results
+             </button>
+           )}
         </div>
       </div>
     </div>
@@ -153,14 +153,14 @@ function HotPollCard({ poll, rank, onEmbedLive, onEmbedResults }: {
             className="flex items-center gap-1 px-2 py-1 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
           >
             <Code className="w-3 h-3 flex-shrink-0" />
-            Poll
+            Embed Live Poll
           </button>
           <button 
             onClick={() => onEmbedResults(poll)}
             className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-[10px] sm:text-xs whitespace-nowrap"
           >
             <Eye className="w-3 h-3 flex-shrink-0" />
-            Results
+            Embed Poll Results
           </button>
         </div>
       </div>
@@ -631,7 +631,7 @@ function CategoryResultsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="w-[95vw] sm:w-[96vw] md:w-[97vw] lg:w-[98vw] xl:w-[99vw] max-w-none max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10 mx-auto">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center`}>
@@ -667,18 +667,18 @@ function CategoryResultsModal({
           </div>
         )}
         
-        <div className="overflow-y-auto max-h-[60vh] py-4 pr-2">
-          {loading ? (
-            <div className="flex items-center justify-center py-12">
-              <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
-            </div>
-          ) : (
-            <>
-              <div className="grid gap-3 md:grid-cols-2">
-                {polls.map((poll) => (
-                  <PollResultCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
-                ))}
-              </div>
+         <div className="overflow-y-auto max-h-[60vh] py-4 pr-2">
+           {loading ? (
+             <div className="flex items-center justify-center py-12">
+               <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
+             </div>
+           ) : (
+             <>
+               <div className="grid gap-4 grid-cols-1">
+                 {polls.map((poll) => (
+                   <PollResultCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
+                 ))}
+               </div>
               {hasMore && (
                 <button
                   onClick={loadMore}

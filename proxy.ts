@@ -23,7 +23,14 @@ export async function proxy(request: NextRequest) {
 
   // --- LOGIC B: Handle Supabase Auth ---
   // If no redirect matched, proceed with your existing Auth check
-  return await updateSession(request);
+  const response = await updateSession(request);
+  
+  // --- LOGIC C: Mark embed routes ---
+  if (pathname.includes("/embed/")) {
+    response.headers.set("x-is-embed-route", "true");
+  }
+  
+  return response;
 }
 
 export const config = {

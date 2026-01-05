@@ -255,6 +255,7 @@ const TAG_COLORS: Record<string, string> = {
 // Map tag names to event page slugs
 function getEventSlug(tag: string): string | null {
   const tagToSlugMap: Record<string, string> = {
+    // Party Bus tags
     "Bachelorette Parties": "/events/bachelorette-party",
     "Bachelor Parties": "/events/bachelor-party",
     "Birthday Celebrations": "/events/birthday-party",
@@ -262,16 +263,37 @@ function getEventSlug(tag: string): string | null {
     "Wedding Celebrations": "/events/wedding-celebrations",
     "Night Out on the Town": "/events/night-out-town",
     "Bar & Club Hopping": "/events/night-out-town",
-    "Concert Transportation": "/events",
-    "Brewery Tours": "/events",
-    "Winery Tours": "/events",
-    "Graduation Parties": "/events",
-    "Holiday Celebrations": "/events",
-    "Corporate Events": "/events",
-    "Sports Game Transportation": "/events",
+    "Concert Transportation": "/events/concert-transportation",
+    "Brewery Tours": "/events/brewery-tours",
+    "Winery Tours": "/events/wine-tours",
+    "Graduation Parties": "/events/graduation-party",
+    "Holiday Celebrations": "/events/holiday-celebrations",
+    "Corporate Events": "/events/corporate-events",
+    "Sports Game Transportation": "/events/sports-game-transportation",
+    
+    // Limousine tags
+    "Weddings": "/events/wedding-celebrations",
+    "Anniversary": "/events/anniversary",
+    "Airport Transfer": "/events/airport-transfer",
+    "Wine Tours": "/events/wine-tours",
+    "Date Night": "/events/date-night",
+    "Romantic Getaway": "/events/romantic-getaway",
+    "VIP Transport": "/events/vip-transport",
+    "Special Occasions": "/events",
+    
+    // Coach Bus tags
+    "Wedding Guest Shuttles": "/events/wedding-celebrations",
+    "Sports Teams": "/events/sports-game-transportation",
+    "School Field Trips": "/events/school-field-trips",
+    "Church Groups": "/events/church-groups",
+    "Tour Groups": "/events/tour-groups",
+    "Convention Transport": "/events/corporate-events",
+    "Airport Shuttles": "/events/airport-transfer",
+    "Multi-Day Trips": "/events/multi-day-trips",
   };
   
-  return tagToSlugMap[tag] || null;
+  // Return specific event page if mapped, otherwise link to general events page
+  return tagToSlugMap[tag] || "/events";
 }
 
 export function BestForTags({ 

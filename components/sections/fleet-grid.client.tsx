@@ -340,12 +340,24 @@ export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridP
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(v => {
-      // 1. Text Search (Name, description, capacity)
+      // 1. Text Search (Name, description, capacity, amenities, type, price)
       const searchLower = searchTerm.toLowerCase();
       const nameMatch = v.name?.toLowerCase().includes(searchLower);
       const capacityMatch = v.capacity?.toLowerCase().includes(searchLower);
       const descriptionMatch = v.description?.toLowerCase().includes(searchLower);
-      const matchesSearch = !searchTerm || nameMatch || capacityMatch || descriptionMatch;
+      
+      // Search through amenities
+      const amenitiesMatch = v.amenities?.some(amenity => 
+        amenity.toLowerCase().includes(searchLower)
+      ) || false;
+      
+      // Search through type
+      const typeMatch = v.type?.toLowerCase().includes(searchLower) || false;
+      
+      // Search through price
+      const priceMatch = v.price_hourly?.toLowerCase().includes(searchLower) || false;
+      
+      const matchesSearch = !searchTerm || nameMatch || capacityMatch || descriptionMatch || amenitiesMatch || typeMatch || priceMatch;
 
       // 2. Amenity Filter (Must have ALL selected amenities)
       const vehicleAmenitiesLower = v.amenities?.map(a => a.toLowerCase()) || [];

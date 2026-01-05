@@ -15,7 +15,7 @@ import { pageMetadata } from "@/lib/seo/metadata";
 import { Flame } from "lucide-react";
 import { LiveStatsBar, DEFAULT_LIVE_STATS, type LiveStat } from "@/components/sections/live-stats-bar";
 import { PollFilterTabs } from "@/components/sections/poll-filter-tabs";
-import { getPollAnalytics, analyticsToLiveStats } from "@/lib/data/poll-analytics";
+import { getPollAnalytics, analyticsToLiveStats, getPollFactsFromSupabase } from "@/lib/data/poll-analytics";
 
 export const revalidate = 60;
 
@@ -64,14 +64,7 @@ const TRIVIA_ITEMS: TriviaItem[] = [
   },
 ];
 
-const FACT_ITEMS: FactItem[] = [
-  { id: "1", stat: "2.4M+", label: "Votes Cast", description: "Real opinions from riders nationwide", icon: "trending", category: "stat" },
-  { id: "2", stat: "89%", label: "Prefer LED Lighting", description: "The most-requested party bus feature", icon: "zap", category: "insight" },
-  { id: "3", stat: "6 Weeks", label: "Ideal Booking Lead", description: "Sweet spot for availability and pricing", icon: "clock", category: "tip" },
-  { id: "4", stat: "18-22", label: "Optimal Group Size", description: "Best energy without overcrowding", icon: "users", category: "insight" },
-  { id: "5", stat: "$45-65", label: "Per Person Average", description: "Typical cost when splitting 4-hour rental", icon: "star", category: "stat" },
-  { id: "6", stat: "Saturday 7PM", label: "Peak Booking Time", description: "Most popular departure for events", icon: "clock", category: "tip" },
-];
+// Facts will be fetched from Supabase
 
 const CONTENT_BLOCKS: ContentBlock[] = [
   {
@@ -163,11 +156,12 @@ const categoryConfigs = [
 ];
 
 export default async function PollResultsPage() {
-  const [hotPolls, reviews, analytics, totalReviewsCount] = await Promise.all([
+  const [hotPolls, reviews, analytics, totalReviewsCount, pollFacts] = await Promise.all([
     getHotPolls(),
     getReviews(),
     getPollAnalytics(),
     getReviewsCount(),
+    getPollFactsFromSupabase(),
   ]);
   
   const liveStats = analyticsToLiveStats(analytics);
@@ -219,7 +213,7 @@ export default async function PollResultsPage() {
       <SectionDivider variant="gradient" />
 
       <FactsShowcase
-        facts={FACT_ITEMS}
+        facts={pollFacts}
         title="Poll Insights at a Glance"
         subtitle="Key statistics from our community voting data"
       />

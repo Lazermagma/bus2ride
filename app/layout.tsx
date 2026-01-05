@@ -11,6 +11,7 @@ import { LiveChatProvider } from "@/components/LiveChatProvider";
 import { GetQuoteProvider } from "@/components/GetQuoteProvider";
 import Script from 'next/script'
 import ClientOnly from "@/components/ClientOnly";
+import { headers } from "next/headers";
 
 export const metadata: Metadata = {
   ...rootMetadata({
@@ -26,11 +27,20 @@ const geistSans = Geist({
   subsets: ["latin"],
 });
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const headersList = await headers();
+  const isEmbedRoute = headersList.get("x-is-embed-route") === "true";
+
+  // For embed routes, return children directly (they return full HTML documents)
+  if (isEmbedRoute) {
+    return <>{children}</>;
+  }
+
+  // For normal routes, wrap with layout
   return (
     <html lang="en" suppressHydrationWarning>
       <body
@@ -64,9 +74,9 @@ export default function RootLayout({
           <ScrollUtilities />
 
           <ClientOnly>
-          <LiveChatWidget />
-          <LiveChatProvider />
-         <GetQuoteProvider />
+            <LiveChatWidget />
+            <LiveChatProvider />
+            <GetQuoteProvider />
           </ClientOnly>
           <Footer />
 
