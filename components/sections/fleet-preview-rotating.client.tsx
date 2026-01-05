@@ -182,7 +182,7 @@ function RotatingVehicleCard({
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Image
           src={activeImage}
-          alt={vehicle.name}
+          alt={vehicle.name || "Vehicle"}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           quality={85}
@@ -216,7 +216,7 @@ function RotatingVehicleCard({
 
         <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
           <h3 className="text-xl font-bold text-white mb-1 drop-shadow-lg">
-            {vehicle.name}
+            {vehicle.name || "Vehicle"}
           </h3>
           <div className="flex flex-wrap gap-1.5">
             {features.slice(0, 3).map((tag, i) => (

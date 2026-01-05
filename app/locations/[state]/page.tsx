@@ -66,7 +66,7 @@ export default async function StatePage({
 
   const reviews = (await getReviews(6)) ?? [];
 
-  const vehicles_images = await getRandomVehiclesImages(12);
+  const vehicles_images = (await getRandomVehiclesImages(12)) ?? [];
 
   return (
     <main>

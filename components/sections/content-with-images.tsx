@@ -92,7 +92,11 @@ export async function OtherFleets({
             className="text-4xl md:text-5xl font-extrabold text-center mb-4
               text-white font-serif tracking-tight"
           >
-            We Also Have {cardsWithImages[0].title} & {cardsWithImages[1].title}
+            {cardsWithImages.length >= 2 ? (
+              <>We Also Have {cardsWithImages[0]?.title || 'Other Options'} & {cardsWithImages[1]?.title || 'More Vehicles'}</>
+            ) : (
+              <>Explore Our Other Vehicle Options</>
+            )}
           </h2>
           <p className="text-blue-100 text-center max-w-3xl mx-auto mb-8">
             Need something different? Explore our other options for elegant
@@ -115,8 +119,8 @@ export async function OtherFleets({
                 {/* Image Area */}
                 <div className="relative h-96 w-full bg-[#173264]">
                   <Image
-                    src={card.imageUrl}
-                    alt={card.title}
+                    src={card.imageUrl || "/placeholder-vehicle.jpg"}
+                    alt={card.title || "Vehicle"}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     fill
                     className="h-full w-full object-cover
@@ -127,10 +131,10 @@ export async function OtherFleets({
                 {/* Labels */}
                 <div className="px-6 py-5">
                   <h3 className="text-2xl font-extrabold text-white text-center">
-                    {card.title}
+                    {card.title || "Vehicle Option"}
                   </h3>
                   <p className="text-blue-200 text-center">
-                    {card.description}
+                    {card.description || "Explore our vehicle options for your transportation needs."}
                   </p>
                 </div>
               </div>

@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import Link from "next/link";
 import { 
   Check, Shield, Clock, Users, Music, Wifi, 
   Sparkles, Zap, Star, Heart, PartyPopper, 
@@ -9,6 +10,13 @@ import {
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   check: Check,
@@ -60,6 +68,7 @@ export function FeatureGrid({
   gradient = "from-pink-500 to-purple-500"
 }: FeatureGridProps) {
   const styles = getGradientStyles(gradient);
+  const [openModalIndex, setOpenModalIndex] = React.useState<number | null>(null);
   
   return (
     <section className="py-16 bg-gradient-to-b from-[#0a1628] to-[#0d1d3a]">
@@ -80,10 +89,12 @@ export function FeatureGrid({
           {features.map((feature, idx) => {
             const Icon = ICON_MAP[feature.icon] || Check;
             return (
-              <div 
+              <button
                 key={idx}
+                onClick={() => setOpenModalIndex(idx)}
                 className="group p-5 rounded-2xl bg-gradient-to-br from-white/5 to-transparent border border-white/10 
-                  hover:border-white/20 hover:bg-white/[0.08] transition-all duration-300"
+                  hover:border-white/20 hover:bg-white/[0.08] transition-all duration-300 text-left w-full
+                  focus:outline-none focus:ring-2 focus:ring-white/20 cursor-pointer"
               >
                 <div className="flex items-start gap-4">
                   <div className={cn(
@@ -97,11 +108,56 @@ export function FeatureGrid({
                     <p className="text-white/60 text-sm leading-relaxed">{feature.description}</p>
                   </div>
                 </div>
-              </div>
+              </button>
             );
           })}
         </div>
       </div>
+
+      {/* Modals for each feature */}
+      {features.map((feature, idx) => {
+        const Icon = ICON_MAP[feature.icon] || Check;
+        return (
+          <Dialog 
+            key={idx} 
+            open={openModalIndex === idx} 
+            onOpenChange={(open) => setOpenModalIndex(open ? idx : null)}
+          >
+            <DialogContent className="bg-gradient-to-br from-[#0f1f45] via-[#0a1733] to-[#060e23] border border-white/10 text-white max-w-lg">
+              <DialogHeader>
+                <div className="flex items-center gap-4 mb-2">
+                  <div className={cn(
+                    "w-14 h-14 rounded-xl flex items-center justify-center shrink-0",
+                    `bg-gradient-to-br ${gradient}`
+                  )}>
+                    <Icon className="w-7 h-7 text-white" />
+                  </div>
+                  <DialogTitle className="text-2xl font-bold text-white">
+                    {feature.title}
+                  </DialogTitle>
+                </div>
+                <DialogDescription className="text-white/70 text-base">
+                  {feature.description}
+                </DialogDescription>
+              </DialogHeader>
+              <div className="mt-4 space-y-4">
+                <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                  <h4 className="text-white font-semibold mb-2">Feature Details</h4>
+                  <p className="text-white/60 text-sm leading-relaxed">
+                    This is placeholder content for {feature.title}. You can replace this with detailed information about the feature, including specifications, benefits, and usage details.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  <h4 className="text-white font-semibold">Additional Information</h4>
+                  <p className="text-white/60 text-sm">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+                  </p>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        );
+      })}
     </section>
   );
 }
@@ -122,6 +178,8 @@ export function SpecsPanel({
   title = "Vehicle Specifications",
   gradient = "from-pink-500 to-purple-500"
 }: SpecsPanelProps) {
+  const [openModalIndex, setOpenModalIndex] = React.useState<number | null>(null);
+
   return (
     <section className="py-12 bg-[#0a1628]">
       <div className="container mx-auto px-4 md:px-6">
@@ -132,16 +190,51 @@ export function SpecsPanel({
         
         <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
           {specs.map((spec, idx) => (
-            <div 
+            <button
               key={idx}
-              className="p-4 rounded-xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-all"
+              onClick={() => setOpenModalIndex(idx)}
+              className="p-4 rounded-xl bg-white/5 border border-white/10 text-center hover:bg-white/10 transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-white/20"
             >
               <p className="text-2xl font-bold text-white mb-1">{spec.value}</p>
               <p className="text-xs text-white/50 uppercase tracking-wider">{spec.label}</p>
-            </div>
+            </button>
           ))}
         </div>
       </div>
+
+      {/* Modals for each spec */}
+      {specs.map((spec, idx) => (
+        <Dialog 
+          key={idx} 
+          open={openModalIndex === idx} 
+          onOpenChange={(open) => setOpenModalIndex(open ? idx : null)}
+        >
+          <DialogContent className="bg-gradient-to-br from-[#0f1f45] via-[#0a1733] to-[#060e23] border border-white/10 text-white max-w-md">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold text-white">
+                {spec.label}
+              </DialogTitle>
+              <DialogDescription className="text-white/70 text-base">
+                Specification Details
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-4 space-y-4">
+              <div className="p-4 rounded-lg bg-white/5 border border-white/10">
+                <p className="text-3xl font-bold text-white mb-2">{spec.value}</p>
+                <p className="text-white/60 text-sm">
+                  This is placeholder content for {spec.label}. You can replace this with detailed information about the specification.
+                </p>
+              </div>
+              <div className="space-y-2">
+                <h4 className="text-white font-semibold">Additional Information</h4>
+                <p className="text-white/60 text-sm">
+                  Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.
+                </p>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
+      ))}
     </section>
   );
 }
@@ -159,6 +252,28 @@ const TAG_COLORS: Record<string, string> = {
   "from-blue-500 to-indigo-500": "bg-gradient-to-r from-blue-500/30 to-indigo-500/30 border-blue-500/30",
 };
 
+// Map tag names to event page slugs
+function getEventSlug(tag: string): string | null {
+  const tagToSlugMap: Record<string, string> = {
+    "Bachelorette Parties": "/events/bachelorette-party",
+    "Bachelor Parties": "/events/bachelor-party",
+    "Birthday Celebrations": "/events/birthday-party",
+    "Prom Night": "/events/prom-night",
+    "Wedding Celebrations": "/events/wedding-celebrations",
+    "Night Out on the Town": "/events/night-out-town",
+    "Bar & Club Hopping": "/events/night-out-town",
+    "Concert Transportation": "/events",
+    "Brewery Tours": "/events",
+    "Winery Tours": "/events",
+    "Graduation Parties": "/events",
+    "Holiday Celebrations": "/events",
+    "Corporate Events": "/events",
+    "Sports Game Transportation": "/events",
+  };
+  
+  return tagToSlugMap[tag] || null;
+}
+
 export function BestForTags({ 
   tags, 
   title = "Best For These Events",
@@ -175,19 +290,36 @@ export function BestForTags({
         </h2>
         
         <div className="flex flex-wrap gap-3">
-          {tags.map((tag, idx) => (
-            <span 
-              key={idx}
-              className={cn(
-                "px-4 py-2 rounded-full text-sm font-medium",
-                "text-white/90 border",
-                "hover:scale-105 transition-transform cursor-default",
-                tagColor
-              )}
-            >
-              {tag}
-            </span>
-          ))}
+          {tags.map((tag, idx) => {
+            const eventSlug = getEventSlug(tag);
+            const baseClasses = cn(
+              "px-4 py-2 rounded-full text-sm font-medium",
+              "text-white/90 border",
+              "hover:scale-105 transition-transform",
+              tagColor
+            );
+            
+            if (eventSlug) {
+              return (
+                <Link
+                  key={idx}
+                  href={eventSlug}
+                  className={cn(baseClasses, "cursor-pointer hover:bg-white/10")}
+                >
+                  {tag}
+                </Link>
+              );
+            }
+            
+            return (
+              <span 
+                key={idx}
+                className={cn(baseClasses, "cursor-default")}
+              >
+                {tag}
+              </span>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -14,6 +14,7 @@ interface ReviewsSectionProps {
   reviews: ReviewsData[];
   title?: string;
   defaultFilters?: (typeof FILTERS)[number]["tag"][];
+  totalCount?: number;
 }
 
 const FILTERS = [
@@ -28,6 +29,7 @@ export function ReviewsSection({
   reviews,
   title,
   defaultFilters,
+  totalCount,
 }: ReviewsSectionProps) {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [activeFilters, setActiveFilters] = React.useState<string[]>(
@@ -43,8 +45,8 @@ export function ReviewsSection({
   const filteredReviews = React.useMemo(() => {
     return reviews.filter((review) => {
       const matchesSearch =
-        review.body.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        review.author_display.toLowerCase().includes(searchQuery.toLowerCase());
+        (review.body?.toLowerCase() || '').includes(searchQuery.toLowerCase()) ||
+        (review.author_display?.toLowerCase() || '').includes(searchQuery.toLowerCase());
 
       const matchesTags =
         activeFilters.length === 0 ||
@@ -54,7 +56,9 @@ export function ReviewsSection({
           if (review.city_slug) reviewLabels.push(review.city_slug);
           if (review.state_slug) reviewLabels.push(review.state_slug);
           if (review.event_slug) reviewLabels.push(review.event_slug);
-          reviewLabels.push(...review.body.toLowerCase().split(" "));
+          if (review.body) {
+            reviewLabels.push(...review.body.toLowerCase().split(" "));
+          }
           return reviewLabels.includes(filterTag);
         });
 
@@ -166,7 +170,7 @@ export function ReviewsSection({
                   </div>
                   
                   <p className="text-base leading-relaxed text-white/90 line-clamp-4 mb-6">
-                    &quot;{review.body}&quot;
+                    &quot;{review.body || 'Great service!'}&quot;
                   </p>
                   
                   <div className="flex items-center gap-3 pt-4 border-t border-white/10">
@@ -215,7 +219,7 @@ export function ReviewsSection({
               shadow-[0_20px_50px_rgba(59,130,246,0.3)]
               hover:-translate-y-1 hover:shadow-[0_25px_60px_rgba(59,130,246,0.4)]"
           >
-            <Link href="/reviews">See all {reviews.length}+ reviews</Link>
+            <Link href="/reviews">See all {totalCount ?? reviews.length}+ reviews</Link>
           </Button>
         </div>
       </div>

@@ -6,11 +6,12 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, 
   TrendingUp, MapPin, Search, Users, Flame, ChevronRight,
-  BarChart3, Sparkles, Globe, Building2, Code, Copy, Check, X, Loader2, Trophy, Eye
+  BarChart3, Sparkles, Globe, Building2, X, Loader2, Trophy, Eye
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import LocationsData from "@/lib/data/local/locations.json";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, TrendingUp, MapPin, Sparkles,
@@ -36,72 +37,7 @@ interface PollResultsExplorerProps {
   hotPolls: PollResult[];
 }
 
-function EmbedModal({ poll, embedType, isOpen, onClose }: { 
-  poll: PollResult | null; 
-  embedType: "live" | "results";
-  isOpen: boolean; 
-  onClose: () => void;
-}) {
-  const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("https://bus2ride.com");
-  
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-  
-  if (!poll) return null;
-  
-  const embedPath = embedType === "live" 
-    ? `/polls/embed/${poll.id}`
-    : `/polls/results/embed/${poll.id}`;
-  
-  const embedCode = `<iframe src="${origin}${embedPath}" width="100%" height="400" frameborder="0" style="border-radius: 12px; max-width: 500px;"></iframe>`;
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(embedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg bg-[#0d1d3a] border-white/10">
-        <DialogHeader className="pb-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} flex items-center justify-center`}>
-              <Code className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg text-white">
-                Embed {embedType === "live" ? "Live Poll" : "Poll Results"}
-              </DialogTitle>
-              <p className="text-white/50 text-sm">
-                {embedType === "live" ? "Interactive voting for your website" : "Show results on your website"}
-              </p>
-            </div>
-          </div>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <p className="text-white/70 text-sm mb-3">{poll.question}</p>
-          
-          <div className="p-4 rounded-xl bg-black/30 border border-white/10 mb-4">
-            <p className="text-white/50 text-xs mb-2">Copy this code:</p>
-            <code className="text-xs text-emerald-400 break-all">{embedCode}</code>
-          </div>
-          
-          <button
-            onClick={handleCopy}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} text-white font-medium hover:opacity-90 transition-all`}
-          >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? "Copied!" : "Copy Embed Code"}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// Using the shared PollEmbedModal component instead
 
 function PollResultCard({ 
   poll,
@@ -173,58 +109,10 @@ function HotPollCard({ poll, rank, onEmbedLive, onEmbedResults }: {
   onEmbedLive: (poll: PollResult) => void;
   onEmbedResults: (poll: PollResult) => void;
 }) {
-  const [hasVoted, setHasVoted] = useState(false);
-  const [isVoting, setIsVoting] = useState(false);
-  const [error, setError] = useState(false);
-  const [votes, setVotes] = useState<Record<string, number>>(() => {
-    return (poll.options || []).reduce<Record<string, number>>((acc, opt) => {
-      acc[opt.id] = Number(opt.vote_count ?? 0);
-      return acc;
-    }, {});
-  });
-
   const options = poll.options || [];
-  const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
-  const topOption = options.reduce((max, o) => (votes[o.id] || 0) > (votes[max?.id] || 0) ? o : max, options[0]);
-
-  const handleVote = async (optionId: string) => {
-    if (hasVoted || isVoting) return;
-    setIsVoting(true);
-    setError(false);
-    const previousVotes = { ...votes };
-    setVotes(prev => ({ ...prev, [optionId]: (prev[optionId] ?? 0) + 1 }));
-    setHasVoted(true);
-    
-    try {
-      const supabase = createClient();
-      const { error: rpcError } = await supabase.rpc("increment_poll_vote1", { p_option_id: optionId });
-      
-      if (rpcError) {
-        setVotes(previousVotes);
-        setHasVoted(false);
-        setError(true);
-      } else {
-        const { data: updatedOptions } = await supabase
-          .from("poll_options1")
-          .select("id, vote_count")
-          .eq("poll_id", poll.id);
-        
-        if (updatedOptions) {
-          const newVotes: Record<string, number> = {};
-          updatedOptions.forEach(opt => {
-            newVotes[opt.id] = Number(opt.vote_count ?? 0);
-          });
-          setVotes(newVotes);
-        }
-      }
-    } catch {
-      setVotes(previousVotes);
-      setHasVoted(false);
-      setError(true);
-    }
-    
-    setIsVoting(false);
-  };
+  const totalVotes = options.reduce((sum, o) => sum + (o.vote_count || 0), 0);
+  const topOption = options.reduce((max, o) => (o.vote_count || 0) > (max.vote_count || 0) ? o : max, options[0]);
+  const topPercent = totalVotes > 0 ? Math.round(((topOption?.vote_count || 0) / totalVotes) * 100) : 0;
 
   return (
     <div className="p-5 rounded-2xl bg-gradient-to-br from-orange-500/10 to-pink-500/10 border border-orange-500/20 hover:border-orange-500/40 transition-all">
@@ -236,42 +124,25 @@ function HotPollCard({ poll, rank, onEmbedLive, onEmbedResults }: {
         <span className="text-orange-400 text-xs font-medium">Hot Topic</span>
       </div>
       
-      <h4 className="text-white font-semibold mb-4">{poll.question}</h4>
+      <h4 className="text-white font-semibold mb-3 text-sm leading-snug">{poll.question}</h4>
       
-      {error && (
-        <p className="text-red-400 text-xs mb-3 flex items-center gap-1">
-          <X className="w-3 h-3" /> Vote failed. Please try again.
+      <div className="mb-4">
+        <p className="text-orange-300 text-sm font-medium leading-relaxed">
+          <span className="text-orange-400 font-bold">{topPercent}%</span> of customers say <span className="text-white font-semibold">{topOption?.label}</span>
         </p>
-      )}
-      
-      <div className="space-y-2 mb-4">
-        {options.map((option) => {
-          const count = votes[option.id] ?? 0;
-          const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-          const isTop = option.id === topOption?.id && totalVotes > 0;
-
-          return hasVoted ? (
-            <div key={option.id} className="space-y-1">
-              <div className="flex justify-between text-sm">
-                <span className={`${isTop ? "text-emerald-400 font-medium" : "text-white/80"}`}>
-                  {isTop && <Trophy className="w-3 h-3 inline mr-1" />}
-                  {option.label}
+        {options.length > 1 && options.slice(1, 3).length > 0 && (
+          <p className="text-white/50 text-xs mt-1">
+            {options.slice(1, 3).map((opt, idx) => {
+              const percent = totalVotes > 0 ? Math.round(((opt.vote_count || 0) / totalVotes) * 100) : 0;
+              return (
+                <span key={opt.id}>
+                  {idx > 0 && ", "}
+                  {percent}% prefer {opt.label}
                 </span>
-                <span className={`${isTop ? "text-emerald-400" : "text-white/50"}`}>{percent}%</span>
-              </div>
-              <Progress value={percent} className={`h-2 ${isTop ? "[&>div]:bg-emerald-500" : ""}`} />
-            </div>
-          ) : (
-            <button
-              key={option.id}
-              onClick={() => handleVote(option.id)}
-              disabled={isVoting}
-              className="w-full text-left px-4 py-2.5 rounded-xl bg-white/5 border border-white/10 hover:bg-orange-500/20 hover:border-orange-500/40 text-white text-sm transition-all disabled:opacity-50"
-            >
-              {option.label}
-            </button>
-          );
-        })}
+              );
+            })}
+          </p>
+        )}
       </div>
       
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-3 border-t border-white/10">
@@ -655,16 +526,20 @@ function CityResultsModal({
 
 function CategoryResultsModal({ 
   category, 
+  allCategories,
   isOpen, 
   onClose,
   onEmbedLive,
   onEmbedResults,
+  onSwitchCategory,
 }: { 
-  category: CategoryConfig | null; 
+  category: CategoryConfig | null;
+  allCategories: CategoryConfig[];
   isOpen: boolean; 
   onClose: () => void;
   onEmbedLive: (poll: PollResult) => void;
   onEmbedResults: (poll: PollResult) => void;
+  onSwitchCategory?: (cat: CategoryConfig) => void;
 }) {
   const [polls, setPolls] = useState<PollResult[]>([]);
   const [loading, setLoading] = useState(false);
@@ -756,7 +631,7 @@ function CategoryResultsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center`}>
@@ -771,7 +646,28 @@ function CategoryResultsModal({
           </div>
         </DialogHeader>
         
-        <div className="overflow-y-auto max-h-[70vh] py-4 pr-2">
+        {onSwitchCategory && allCategories.length > 0 && (
+          <div className="py-3 border-b border-white/10">
+            <p className="text-white/50 text-xs mb-2">Switch category:</p>
+            <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
+              {allCategories.filter(c => c.slug !== category.slug).slice(0, 12).map(cat => {
+                const CatIcon = ICON_MAP[cat.iconName] || Car;
+                return (
+                  <button
+                    key={cat.slug}
+                    onClick={() => onSwitchCategory(cat)}
+                    className={`flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-gradient-to-br ${cat.gradient} text-white text-xs font-medium hover:opacity-90 transition-all`}
+                  >
+                    <CatIcon className="w-3 h-3" />
+                    {cat.title}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+        
+        <div className="overflow-y-auto max-h-[60vh] py-4 pr-2">
           {loading ? (
             <div className="flex items-center justify-center py-12">
               <Loader2 className="w-8 h-8 text-purple-400 animate-spin" />
@@ -1067,18 +963,22 @@ export function PollResultsExplorer({ categories, hotPolls }: PollResultsExplore
 
       <CategoryResultsModal
         category={selectedCategory}
+        allCategories={categories}
         isOpen={!!selectedCategory}
         onClose={() => setSelectedCategory(null)}
         onEmbedLive={handleEmbedLive}
         onEmbedResults={handleEmbedResults}
+        onSwitchCategory={(cat) => setSelectedCategory(cat)}
       />
 
-      <EmbedModal 
-        poll={embedPoll} 
-        embedType={embedType}
-        isOpen={!!embedPoll} 
-        onClose={() => setEmbedPoll(null)} 
-      />
+      {embedPoll && (
+        <PollEmbedModal 
+          poll={embedPoll} 
+          embedType={embedType}
+          isOpen={!!embedPoll} 
+          onClose={() => setEmbedPoll(null)} 
+        />
+      )}
     </section>
   );
 }

@@ -3,7 +3,7 @@ import { ReviewsSection } from "@/components/sections/reviews-section";
 import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { FaqSearchSection } from "@/components/sections/faq-search-section";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -11,11 +11,11 @@ import { FactsShowcase, type FactItem } from "@/components/sections/facts-showca
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
 import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
 import { SectionDivider, PremiumDivider } from "@/components/layout/section-dividers";
-import { BookingProcessSection } from "@/components/sections/content-booking";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Calculator, Sparkles  } from "lucide-react";
 import Link from "next/link";
 import { PricingFaqClient } from "@/components/sections/pricing-faq.client";
+import { PricingCardsClient } from "@/components/sections/pricing-cards.client";
 
 export const metadata = pageMetadata({
   title: "Pricing",
@@ -264,6 +264,7 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 
 export default async function PricingPage() {
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -273,23 +274,7 @@ export default async function PricingPage() {
 
       <section className="bg-gradient-to-b from-[#060e23] to-[#0a1628] py-16 text-white">
         <div className="mx-auto max-w-6xl px-4">
-          <div className="grid gap-6 md:grid-cols-3 mb-12">
-            <div className="rounded-2xl border border-blue-500/30 bg-gradient-to-br from-blue-600/20 to-cyan-600/20 p-6 text-center">
-              <div className="text-3xl font-extrabold text-white mb-2">$150-400/hr</div>
-              <div className="text-sm text-blue-200/70 font-medium mb-3">Party Buses</div>
-              <div className="text-xs text-white/50">15-50 passengers</div>
-            </div>
-            <div className="rounded-2xl border border-violet-500/30 bg-gradient-to-br from-violet-600/20 to-purple-600/20 p-6 text-center">
-              <div className="text-3xl font-extrabold text-white mb-2">$100-300/hr</div>
-              <div className="text-sm text-violet-200/70 font-medium mb-3">Limousines</div>
-              <div className="text-xs text-white/50">6-20 passengers</div>
-            </div>
-            <div className="rounded-2xl border border-emerald-500/30 bg-gradient-to-br from-emerald-600/20 to-teal-600/20 p-6 text-center">
-              <div className="text-3xl font-extrabold text-white mb-2">$125-350/hr</div>
-              <div className="text-sm text-emerald-200/70 font-medium mb-3">Coach Buses</div>
-              <div className="text-xs text-white/50">25-56 passengers</div>
-            </div>
-          </div>
+          <PricingCardsClient />
 
           <PricingFaqClient />
         </div>
@@ -358,7 +343,7 @@ export default async function PricingPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <SectionDivider variant="gradient" />
 
@@ -369,10 +354,6 @@ export default async function PricingPage() {
       />
 
       <SectionDivider variant="dots" />
-
-      <BookingProcessSection />
-
-      <PremiumDivider />
 
       <ToolsGrid category="pricing" />
 

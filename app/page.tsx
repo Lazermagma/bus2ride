@@ -1,7 +1,7 @@
 import { Suspense } from "react";
 import Hero from "@/components/layout/hero";
 import { ReviewsSection } from "@/components/sections/reviews-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
@@ -123,6 +123,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 export default async function Home() {
   const reviews = (await getReviews(200)) ?? [];
   const facts = await getFacts("home", 6);
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <div className="bg-[#0a1628]">
@@ -165,7 +166,7 @@ export default async function Home() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <GlobalCTAs source="Homepage - After Reviews" />
 

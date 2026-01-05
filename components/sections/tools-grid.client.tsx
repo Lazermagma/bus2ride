@@ -304,7 +304,7 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
               variant="outline"
               size="lg"
               onClick={() => setShowAll(true)}
-              className="rounded-full border-white/20 text-white hover:bg-white/10 px-8"
+              className="rounded-full border-orange-500/30 bg-orange-500/10 text-orange-300 hover:bg-orange-500/20 hover:text-white hover:border-orange-500/50 px-8"
             >
               <ChevronDown className="w-4 h-4 mr-2" />
               Show All {filteredTools.length} Tools

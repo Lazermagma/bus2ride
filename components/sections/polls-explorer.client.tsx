@@ -6,12 +6,13 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, 
   TrendingUp, MapPin, Search, Users, Flame, ChevronRight,
-  BarChart3, Sparkles, CheckCircle2, Globe, Building2, Code, Copy, Check, X, Loader2, Eye
+  BarChart3, Sparkles, CheckCircle2, Globe, Building2, X, Loader2, Eye
 } from "lucide-react";
 import type { PollWithOptions } from "@/lib/data/polls";
 import type { LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import LocationsData from "@/lib/data/local/locations.json";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, TrendingUp, MapPin, Sparkles,
@@ -38,72 +39,7 @@ interface PollsExplorerProps {
   locations: LocationConfig[];
 }
 
-function EmbedModal({ poll, embedType, isOpen, onClose }: { 
-  poll: PollWithOptions | null; 
-  embedType: "live" | "results";
-  isOpen: boolean; 
-  onClose: () => void;
-}) {
-  const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("https://bus2ride.com");
-  
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-  
-  if (!poll) return null;
-  
-  const embedPath = embedType === "live" 
-    ? `/polls/embed/${poll.id}`
-    : `/polls/results/embed/${poll.id}`;
-  
-  const embedCode = `<iframe src="${origin}${embedPath}" width="100%" height="400" frameborder="0" style="border-radius: 12px; max-width: 500px;"></iframe>`;
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(embedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg bg-[#0d1d3a] border-white/10">
-        <DialogHeader className="pb-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} flex items-center justify-center`}>
-              <Code className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg text-white">
-                Embed {embedType === "live" ? "Live Poll" : "Poll Results"}
-              </DialogTitle>
-              <p className="text-white/50 text-sm">
-                {embedType === "live" ? "Interactive voting for your website" : "Show results on your website"}
-              </p>
-            </div>
-          </div>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <p className="text-white/70 text-sm mb-3">{poll.question}</p>
-          
-          <div className="p-4 rounded-xl bg-black/30 border border-white/10 mb-4">
-            <p className="text-white/50 text-xs mb-2">Copy this code:</p>
-            <code className="text-xs text-emerald-400 break-all">{embedCode}</code>
-          </div>
-          
-          <button
-            onClick={handleCopy}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} text-white font-medium hover:opacity-90 transition-all`}
-          >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? "Copied!" : "Copy Embed Code"}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// Using the shared PollEmbedModal component instead
 
 function PollCard({ 
   poll,
@@ -708,7 +644,7 @@ function CategoryPollsModal({
         {/* Quick navigation to other categories */}
         <div className="py-3 border-b border-white/10">
           <p className="text-white/50 text-xs mb-2">Switch category:</p>
-          <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {allCategories.filter(c => c.slug !== category.slug).slice(0, 12).map(cat => {
               const CatIcon = ICON_MAP[cat.iconName] || Car;
               return (
@@ -1012,12 +948,14 @@ export function PollsExplorer({ categories, locations }: PollsExplorerProps) {
         onEmbedResults={handleEmbedResults}
       />
 
-      <EmbedModal 
-        poll={embedPoll} 
-        embedType={embedType}
-        isOpen={!!embedPoll} 
-        onClose={() => setEmbedPoll(null)} 
-      />
+      {embedPoll && (
+        <PollEmbedModal 
+          poll={embedPoll} 
+          embedType={embedType}
+          isOpen={!!embedPoll} 
+          onClose={() => setEmbedPoll(null)} 
+        />
+      )}
     </section>
   );
 }

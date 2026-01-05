@@ -4,10 +4,11 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Sparkles, Flame, Star, Zap, Trophy, ThumbsUp, Code, Copy, Check, Eye, BarChart3, Share2 } from "lucide-react";
+import { Loader2, Sparkles, Flame, Star, Zap, Trophy, ThumbsUp, Share2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { PollWithOptions } from "@/lib/data/polls";
 import { cn } from "@/lib/utils";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 interface PollModalProps {
   poll: PollWithOptions | null;
@@ -58,9 +59,8 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
   const [hasVoted, setHasVoted] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
   const [votes, setVotes] = React.useState<Record<string, number>>({});
+  const [embedModalOpen, setEmbedModalOpen] = React.useState(false);
   const [embedType, setEmbedType] = React.useState<"live" | "results">("live");
-  const [copied, setCopied] = React.useState(false);
-  const [origin, setOrigin] = React.useState("https://bus2ride.com");
   
   const config = THEME_CONFIG[theme];
   const Icon = config.icon;
@@ -103,17 +103,6 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
     setIsSubmitting(false);
   };
 
-  const embedPath = embedType === "live" 
-    ? `/polls/embed/${poll.id}`
-    : `/polls/results/embed/${poll.id}`;
-  
-  const embedCode = `<iframe src="${origin}${embedPath}" width="100%" height="400" frameborder="0" style="border-radius: 12px; max-width: 500px;"></iframe>`;
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(embedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
 
   const sortedOptions = [...options].sort((a, b) => {
     const aCount = votes[a.id] ?? 0;
@@ -125,7 +114,7 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className={cn(
-        "sm:max-w-3xl border bg-[#0d1d3a] p-0 overflow-hidden",
+        "sm:max-w-5xl max-w-[95vw] border bg-[#0d1d3a] p-0 overflow-hidden",
         config.borderColor
       )}>
         <div className={cn(
@@ -156,7 +145,7 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
             </div>
           </DialogHeader>
           
-          <div className="grid md:grid-cols-2 gap-0">
+          <div className="grid md:grid-cols-2 gap-6 p-6">
             <div className="p-5 border-r border-white/10">
               <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-3">
                 {hasVoted ? "Results" : "Cast Your Vote"}
@@ -230,86 +219,65 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
               )}
             </div>
             
-            <div className="p-5 bg-black/20">
-              <div className="flex items-center justify-between mb-3">
-                <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50">
-                  Share & Embed
+            <div className="p-5 bg-black/20 space-y-4">
+              <div>
+                <h4 className="text-xs font-semibold uppercase tracking-wider text-white/50 mb-3">
+                  Embed Options
                 </h4>
-                <div className="flex gap-1.5">
+                <div className="space-y-3">
                   <button
-                    onClick={() => setEmbedType("live")}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all",
-                      embedType === "live"
-                        ? "bg-violet-500 text-white"
-                        : "bg-violet-500/20 text-violet-300 hover:bg-violet-500/30"
-                    )}
+                    onClick={() => openEmbedModal("live")}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-violet-500 to-purple-500 text-white font-medium hover:opacity-90 transition-all hover:scale-[1.02] shadow-lg"
                   >
-                    <Code className="w-3 h-3" />
-                    Poll
+                    <Sparkles className="w-4 h-4" />
+                    Embed Live Poll
                   </button>
                   <button
-                    onClick={() => setEmbedType("results")}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-all",
-                      embedType === "results"
-                        ? "bg-amber-500 text-white"
-                        : "bg-amber-500/20 text-amber-300 hover:bg-amber-500/30"
-                    )}
+                    onClick={() => openEmbedModal("results")}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 text-white font-medium hover:opacity-90 transition-all hover:scale-[1.02] shadow-lg"
                   >
-                    <Eye className="w-3 h-3" />
-                    Results
+                    <BarChart3 className="w-4 h-4" />
+                    Embed Poll Results
                   </button>
                 </div>
               </div>
               
-              <div className="space-y-3">
-                <div className="p-3 rounded-lg bg-black/40 border border-white/10">
-                  <p className="text-white/40 text-xs mb-2">Copy this embed code:</p>
-                  <code className="text-xs text-emerald-400 break-all leading-relaxed">{embedCode}</code>
+              <div className="grid grid-cols-2 gap-2 pt-4 border-t border-white/10">
+                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-center">
+                  <p className="text-xl font-bold text-white">{totalVotes.toLocaleString()}</p>
+                  <p className="text-xs text-white/50">Total Votes</p>
                 </div>
-                
-                <button
-                  onClick={handleCopy}
-                  className={cn(
-                    "w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all",
-                    embedType === "live"
-                      ? "bg-gradient-to-r from-violet-500 to-purple-500 text-white hover:opacity-90"
-                      : "bg-gradient-to-r from-amber-500 to-orange-500 text-white hover:opacity-90"
-                  )}
-                >
-                  {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-                  {copied ? "Copied!" : "Copy Embed Code"}
-                </button>
-                
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-center">
-                    <p className="text-xl font-bold text-white">{totalVotes.toLocaleString()}</p>
-                    <p className="text-xs text-white/50">Total Votes</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-center">
-                    <p className="text-xl font-bold text-white">{options.length}</p>
-                    <p className="text-xs text-white/50">Options</p>
-                  </div>
+                <div className="p-2.5 rounded-lg bg-white/5 border border-white/10 text-center">
+                  <p className="text-xl font-bold text-white">{options.length}</p>
+                  <p className="text-xs text-white/50">Options</p>
                 </div>
-                
-                <button
-                  onClick={() => {
-                    navigator.share?.({ 
-                      title: poll.question, 
-                      url: `${origin}/polls?id=${poll.id}` 
-                    }).catch(() => {});
-                  }}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/10 transition-all"
-                >
-                  <Share2 className="w-4 h-4" />
-                  Share Poll
-                </button>
               </div>
+              
+              <button
+                onClick={() => {
+                  navigator.share?.({ 
+                    title: poll.question, 
+                    url: `${origin}/polls?id=${poll.id}` 
+                  }).catch(() => {});
+                }}
+                className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm font-medium hover:bg-white/10 transition-all"
+              >
+                <Share2 className="w-4 h-4" />
+                Share Poll
+              </button>
             </div>
           </div>
         </div>
       </DialogContent>
+
+      {poll && (
+        <PollEmbedModal
+          poll={poll}
+          embedType={embedType}
+          isOpen={embedModalOpen}
+          onClose={() => setEmbedModalOpen(false)}
+        />
+      )}
     </Dialog>
   );
 }

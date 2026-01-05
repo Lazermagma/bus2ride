@@ -101,7 +101,7 @@ export default async function FleetCityPage({
     "coach-buses": "coach",
   } as const;
 
-  const vehicles_images = await getRandomVehiclesImages(12, fleetType);
+  const vehicles_images = (await getRandomVehiclesImages(12, fleetType)) ?? [];
 
   return (
     <main>

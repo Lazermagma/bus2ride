@@ -5,14 +5,14 @@ import { EventsGrid } from "@/components/sections/events-grid";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
 import { SectionDivider } from "@/components/layout/section-dividers";
-import { TriviaCarousel, type TriviaItem } from "@/components/sections/trivia-carousel";
+import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
 import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
 import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
 import { PollsExplorer } from "@/components/sections/polls-explorer.client";
-import { PollSearch } from "@/components/sections/poll-search.client";
-import { LiveStatsBar, DEFAULT_LIVE_STATS } from "@/components/sections/live-stats-bar";
+import { FilteredPollsClient } from "@/components/sections/filtered-polls.client";
+import { LiveStatsBar, DEFAULT_LIVE_STATS, type LiveStat } from "@/components/sections/live-stats-bar";
 import { PollFilterTabs } from "@/components/sections/poll-filter-tabs";
-import { getPollAnalytics, analyticsToLiveStats } from "@/lib/data/poll-analytics";
+import { getPollAnalytics, analyticsToLiveStats, type LiveStatData } from "@/lib/data/poll-analytics";
 
 const TRIVIA_ITEMS: TriviaItem[] = [
   {
@@ -181,7 +181,7 @@ export default async function PollsPage() {
       <Hero slug="polls" />
 
       <LiveStatsBar 
-        stats={liveStats} 
+        stats={liveStats as LiveStat[]} 
         title="Live Poll Activity"
       />
 
@@ -201,6 +201,8 @@ export default async function PollsPage() {
         </div>
       </section>
 
+      <FilteredPollsClient categories={CATEGORY_CONFIGS} />
+
       <PollsExplorer 
         categories={CATEGORY_CONFIGS}
         locations={LOCATION_CONFIGS}
@@ -208,55 +210,12 @@ export default async function PollsPage() {
 
       <SectionDivider variant="glow" />
 
-      <PollSearch />
-
-      <SectionDivider variant="gradient" />
-
-      <section className="py-12 bg-gradient-to-b from-[#0a1628] to-[#060e23]">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid lg:grid-cols-2 gap-8">
-            <div>
-              <TriviaCarousel
-                items={TRIVIA_ITEMS}
-                title="Transportation Trivia"
-                subtitle="Surprising facts about group transportation"
-              />
-            </div>
-            <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-white/5 to-transparent p-6 md:p-8">
-              <h3 className="text-2xl font-bold text-white mb-4">How to Book with Bus2Ride</h3>
-              <div className="space-y-4">
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-indigo-400 font-bold">1</span>
-                  </div>
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Browse & Compare</h4>
-                    <p className="text-white/60 text-sm">Explore our fleet of party buses, limousines, and coach buses. Compare features and pricing.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-indigo-400 font-bold">2</span>
-                  </div>
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Get an Instant Quote</h4>
-                    <p className="text-white/60 text-sm">Use our quote tool to get transparent pricing based on your group size and event details.</p>
-                  </div>
-                </div>
-                <div className="flex gap-4">
-                  <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center flex-shrink-0">
-                    <span className="text-indigo-400 font-bold">3</span>
-                  </div>
-                  <div>
-                    <h4 className="text-white font-semibold mb-1">Confirm & Ride</h4>
-                    <p className="text-white/60 text-sm">Book online or call us. Your vehicle arrives on time, fully cleaned and ready to go.</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <TriviaBookingSection
+        triviaItems={TRIVIA_ITEMS}
+        title="Transportation Trivia & How to Book"
+        subtitle="Fun facts about group transportation and our simple booking process"
+        bookingTitle="How to Book with Bus2Ride"
+      />
 
       <SectionDivider variant="gradient" />
 

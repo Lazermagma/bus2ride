@@ -137,7 +137,7 @@ export function PollsColumnsClient({
                 <div
                   key={`${poll.id}-${idx}`}
                   data-poll-index={idx}
-                  className="h-[400px] md:h-[450px] snap-start snap-always py-3"
+                  className="h-[400px] md:h-[450px] snap-start snap-always py-3 px-1"
                 >
 
                   <PollCard

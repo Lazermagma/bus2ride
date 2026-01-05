@@ -4,7 +4,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -125,6 +125,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 
 export default async function ReviewsPage() {
   const reviews = (await getReviews(100)) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -140,7 +141,7 @@ export default async function ReviewsPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} title="All Customer Reviews" />
+      <ReviewsSection reviews={reviews} title="All Customer Reviews" totalCount={totalReviewsCount} />
 
       <SectionDivider variant="gradient" />
 

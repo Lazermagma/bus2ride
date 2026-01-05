@@ -7,7 +7,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { getVehiclesByType } from "@/lib/data/vehicles";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { BookingProcessSection } from "@/components/sections/content-booking";
 import { FaqSearchSection } from "@/components/sections/faq-search-section";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -300,11 +300,12 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 async function getPageData() {
   const vehicles = (await getVehiclesByType("limo", "min_hours", 10)) ?? [];
   const reviews = (await getReviews()) ?? [];
-  return { vehicles, reviews };
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
+  return { vehicles, reviews, totalReviewsCount };
 }
 
 export default async function LimousinesPage() {
-  const { vehicles, reviews } = await getPageData();
+  const { vehicles, reviews, totalReviewsCount } = await getPageData();
 
   return (
     <main className="bg-[#0a1628]">
@@ -377,7 +378,7 @@ export default async function LimousinesPage() {
 
       <SectionDivider variant="gradient" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <GlobalCTAs source="Limousines - After Reviews" />
 
