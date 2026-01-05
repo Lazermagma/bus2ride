@@ -7,6 +7,8 @@ import Footer from "@/components/layout/footer";
 import ScrollUtilities from "@/components/scroll-utilities";
 import { rootMetadata } from "@/lib/seo/metadata";
 import { LiveChatWidget } from "@/components/LiveChatWidget";
+import { LiveChatProvider } from "@/components/LiveChatProvider";
+import { GetQuoteProvider } from "@/components/GetQuoteProvider";
 import Script from 'next/script'
 import ClientOnly from "@/components/ClientOnly";
 
@@ -50,6 +52,8 @@ export default function RootLayout({
 
           <ClientOnly>
           <LiveChatWidget />
+          <LiveChatProvider />
+         <GetQuoteProvider />
           </ClientOnly>
           <Footer />
 

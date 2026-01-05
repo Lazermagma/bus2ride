@@ -1,8 +1,53 @@
 "use client";
 
 import Script from "next/script";
+import { useEffect } from "react";
 
 export function LiveChatWidget() {
+  useEffect(() => {
+    // Set up ready callbacks when LiveChat loads
+    const handleLiveChatReady = () => {
+      window.__lc_ready = true;
+      
+      // Execute any pending callbacks
+      if (window.__lc_ready_callbacks && Array.isArray(window.__lc_ready_callbacks)) {
+        window.__lc_ready_callbacks.forEach((callback) => {
+          try {
+            callback();
+          } catch (e) {
+            console.warn("LiveChat: Error executing ready callback", e);
+          }
+        });
+        window.__lc_ready_callbacks = [];
+      }
+    };
+
+    // Listen for LiveChat ready events
+    if (window.LiveChatWidget) {
+      window.LiveChatWidget.on('ready', handleLiveChatReady);
+    }
+
+    // Also check periodically if LC_API is available
+    const checkLCAPI = setInterval(() => {
+      if (window.LC_API && !window.__lc_ready) {
+        handleLiveChatReady();
+        clearInterval(checkLCAPI);
+      }
+    }, 500);
+
+    // Cleanup after 30 seconds
+    setTimeout(() => {
+      clearInterval(checkLCAPI);
+    }, 30000);
+
+    return () => {
+      if (window.LiveChatWidget) {
+        window.LiveChatWidget.off('ready', handleLiveChatReady);
+      }
+      clearInterval(checkLCAPI);
+    };
+  }, []);
+
   return (
     <>
       <Script
