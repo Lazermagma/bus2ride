@@ -1,14 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { X, Sparkles } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 interface GetQuoteModalProps {
   isOpen: boolean;
@@ -30,7 +23,7 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
             top: 50% !important;
             left: 50% !important;
             transform: translate(-50%, -50%) !important;
-            margin-top: 1.75rem !important;
+            margin-top: 1.5rem !important;
             right: auto !important;
             bottom: auto !important;
             z-index: 99999 !important;
@@ -40,7 +33,7 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
             height: 85vh !important;
             border-radius: 16px !important;
             overflow: hidden !important;
-           
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
             pointer-events: auto !important;
           `;
           
@@ -112,38 +105,6 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
     }
   }, [isOpen, source, chatReady]);
 
-  // Add custom overlay styles with blur
-  useEffect(() => {
-    if (isOpen) {
-      const overlayStyleId = "get-quote-modal-overlay-styles";
-      let overlayStyle = document.getElementById(overlayStyleId) as HTMLStyleElement;
-      
-      if (!overlayStyle) {
-        overlayStyle = document.createElement("style");
-        overlayStyle.id = overlayStyleId;
-        document.head.appendChild(overlayStyle);
-      }
-      overlayStyle.textContent = `
-        [data-slot="dialog-overlay"] {
-          background-color: rgba(0, 0, 0, 0.6) !important;
-          backdrop-filter: blur(8px) !important;
-          -webkit-backdrop-filter: blur(8px) !important;
-          z-index: 99998 !important;
-        }
-        [data-slot="dialog-content"] {
-          z-index: 99998 !important;
-          pointer-events: none !important;
-        }
-        #chat-widget-container {
-          pointer-events: auto !important;
-        }
-        #chat-widget-container * {
-          pointer-events: auto !important;
-        }
-      `;
-    }
-  }, [isOpen]);
-
   // Hide original chat button when modal is open
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -201,51 +162,36 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
     };
   }, [isOpen, onClose]);
 
+  if (!isOpen) return null;
+
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent 
-        className="max-w-2xl w-full h-[85vh]   p-0 bg-gradient-to-br from-[#0f1f45] via-[#0a1733] to-[#060e23]  flex flex-col "
-        showCloseButton={false}
-        style={{ pointerEvents: 'none' }}
+    <div 
+      className="fixed inset-0 z-[10000] flex items-center justify-center"
+      onClick={onClose}
+    >
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          onClose();
+        }}
+        className="absolute top-4 right-4 z-[10002] p-2 rounded-full bg-white/10 hover:bg-white/20 
+          text-white transition-colors border border-white/20"
+        aria-label="Close chat"
       >
-        <DialogHeader className="px-6 pt-6 mb-6 pb-8  flex-shrink-0 relative z-10" style={{ pointerEvents: 'auto' }}>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 via-red-500 to-orange-500 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <DialogTitle className="text-xl font-bold text-white">
-                  Get Your Quote
-                </DialogTitle>
-                <p className="text-white/60 text-sm mt-0.5">
-                  Chat with our team for a personalized quote
-                </p>
-              </div>
-            </div>
-            <Button
-              onClick={onClose}
-              variant="ghost"
-              size="icon"
-              className="h-8 w-8 rounded-full hover:bg-white/10 text-white/70 hover:text-white"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
-        
-        <div className="flex-1 relative overflow-hidden min-h-0 flex items-center justify-center mt-6">
-          {!chatReady && (
-            <div className="absolute inset-0  flex items-center justify-center z-9 ">
-              <div className="text-center space-y-4">
-                <div className="animate-spin w-8 h-8  rounded-full mx-auto" />
-                <p className="text-white/70 text-sm">Loading chat...</p>
-              </div>
-            </div>
-          )}
+        <X className="w-6 h-6" />
+      </button>
+      
+      {!chatReady && (
+        <div 
+          className="relative z-[10001] w-full max-w-[500px] h-[85vh] max-h-[700px] mx-4 
+            bg-gradient-to-br from-[#0f1f45] via-[#0a1733] to-[#060e23] rounded-2xl flex flex-col items-center justify-center gap-4 border border-white/10"
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div className="animate-spin w-8 h-8 border-4 border-pink-500 border-t-transparent rounded-full" />
+          <p className="text-white/70 font-medium">Loading chat...</p>
         </div>
-      </DialogContent>
-    </Dialog>
+      )}
+    </div>
   );
 }
-
