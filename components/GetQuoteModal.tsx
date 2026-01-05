@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { X } from "lucide-react";
 
 interface GetQuoteModalProps {
@@ -11,12 +11,25 @@ interface GetQuoteModalProps {
 
 export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
   const [chatReady, setChatReady] = useState(false);
+  const originalStylesRef = useRef<{ container?: string; iframes?: Map<HTMLIFrameElement, string> }>({});
 
   useEffect(() => {
     if (isOpen) {
       const showChat = () => {
         const container = document.getElementById("chat-widget-container");
         if (container) {
+          // Store original styles before modifying
+          originalStylesRef.current.container = container.style.cssText;
+          originalStylesRef.current.iframes = new Map();
+          
+          const iframes = container.querySelectorAll('iframe');
+          iframes.forEach((iframe) => {
+            if (iframe instanceof HTMLIFrameElement) {
+              originalStylesRef.current.iframes!.set(iframe, iframe.style.cssText);
+            }
+          });
+          
+          // Apply modal styles
           container.style.cssText = `
             display: block !important;
             position: fixed !important;
@@ -38,7 +51,6 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
           `;
           
           // Also ensure all child elements can receive pointer events
-          const iframes = container.querySelectorAll('iframe');
           iframes.forEach((iframe) => {
             if (iframe instanceof HTMLIFrameElement) {
               iframe.style.pointerEvents = 'auto';
@@ -89,23 +101,105 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
       
       checkReady();
     } else {
-      // Hide chat when modal closes
+      // Restore original chat widget when modal closes
+      const restoreWidget = () => {
+        const container = document.getElementById("chat-widget-container");
+        if (container) {
+          // Remove only the modal-specific styles we added
+          // Let LiveChat handle its own positioning
+          container.style.removeProperty('position');
+          container.style.removeProperty('top');
+          container.style.removeProperty('left');
+          container.style.removeProperty('right');
+          container.style.removeProperty('bottom');
+          container.style.removeProperty('transform');
+          container.style.removeProperty('margin-top');
+          container.style.removeProperty('max-width');
+          container.style.removeProperty('max-height');
+          container.style.removeProperty('width');
+          container.style.removeProperty('height');
+          container.style.removeProperty('border-radius');
+          container.style.removeProperty('box-shadow');
+          container.style.removeProperty('z-index');
+          container.style.removeProperty('pointer-events');
+          
+          // Ensure the widget is visible - don't remove display, let LiveChat handle it
+          // But make sure it's not hidden by our styles
+          if (container.style.display === 'none' || container.style.display === '') {
+            container.style.removeProperty('display');
+          }
+          
+          // Restore iframe styles if we stored them
+          if (originalStylesRef.current.iframes) {
+            originalStylesRef.current.iframes.forEach((originalStyle, iframe) => {
+              if (iframe instanceof HTMLIFrameElement && originalStyle) {
+                // Only restore if we had original styles
+                iframe.style.cssText = originalStyle;
+              } else if (iframe instanceof HTMLIFrameElement) {
+                // Otherwise just remove pointer-events override
+                iframe.style.removeProperty('pointer-events');
+              }
+            });
+          }
+          
+          // Remove modal-active class if it exists
+          container.classList.remove('lc-modal-active');
+          
+          // Ensure the widget button is visible
+          const button = container.querySelector('iframe[data-test-id="widget-button"]');
+          if (button && button instanceof HTMLIFrameElement) {
+            button.style.removeProperty('display');
+          }
+          
+          // Force the container to be visible (LiveChat will handle its own display logic)
+          // But we need to make sure it's not hidden by our previous styles
+          if (container.style.display === 'none') {
+            container.style.display = '';
+          }
+          
+          // Clear the stored styles
+          originalStylesRef.current = {};
+        }
+      };
+      
+      // Hide/minimize chat window first
       if (window.LC_API && typeof window.LC_API.hide_chat_window === "function") {
         try {
           window.LC_API.hide_chat_window();
         } catch (e) {
           // Ignore errors
         }
+      } else if (window.LC_API && typeof window.LC_API.minimize_chat_window === "function") {
+        try {
+          window.LC_API.minimize_chat_window();
+        } catch (e) {
+          // Ignore errors
+        }
       }
       
-      const container = document.getElementById("chat-widget-container");
-      if (container) {
-        container.style.cssText = "display: none !important;";
-      }
+      // Restore widget after a delay to ensure chat is minimized
+      setTimeout(() => {
+        restoreWidget();
+        // Also ensure widget is visible after restoration
+        setTimeout(() => {
+          const container = document.getElementById("chat-widget-container");
+          if (container) {
+            // Make absolutely sure it's not hidden
+            if (container.style.display === 'none') {
+              container.style.display = '';
+            }
+            // Ensure the button is visible
+            const button = container.querySelector('iframe[data-test-id="widget-button"]');
+            if (button) {
+              (button as HTMLElement).style.removeProperty('display');
+            }
+          }
+        }, 100);
+      }, 200);
     }
   }, [isOpen, source, chatReady]);
 
-  // Hide original chat button when modal is open
+  // Hide original chat button only when modal is open
   useEffect(() => {
     if (typeof window === "undefined") return;
     
@@ -118,28 +212,40 @@ export function GetQuoteModal({ isOpen, onClose, source }: GetQuoteModalProps) {
       document.head.appendChild(style);
     }
     
-    style.textContent = `
-      #chat-widget-container iframe[data-test-id="widget-button"] {
-        display: none !important;
-      }
-      #chat-widget-minimized {
-        display: none !important;
-      }
-      #chat-widget-container {
-        pointer-events: auto !important;
-      }
-      #chat-widget-container * {
-        pointer-events: auto !important;
-      }
-      #chat-widget-container iframe {
-        pointer-events: auto !important;
-      }
-    `;
-
-    return () => {
-      // Keep the style for hiding the button
-    };
-  }, []);
+    if (isOpen) {
+      // Hide the button only when modal is open
+      style.textContent = `
+        #chat-widget-container iframe[data-test-id="widget-button"] {
+          display: none !important;
+        }
+        #chat-widget-minimized {
+          display: none !important;
+        }
+        #chat-widget-container {
+          pointer-events: auto !important;
+        }
+        #chat-widget-container * {
+          pointer-events: auto !important;
+        }
+        #chat-widget-container iframe {
+          pointer-events: auto !important;
+        }
+      `;
+    } else {
+      // Show the button when modal is closed
+      style.textContent = `
+        #chat-widget-container {
+          pointer-events: auto !important;
+        }
+        #chat-widget-container * {
+          pointer-events: auto !important;
+        }
+        #chat-widget-container iframe {
+          pointer-events: auto !important;
+        }
+      `;
+    }
+  }, [isOpen]);
 
   // Handle escape key and body overflow
   useEffect(() => {
