@@ -140,12 +140,15 @@ function RotatingVehicleCard({
   const vehicleType = vehicle.type || "party-bus";
   const typeGradient = getVehicleGradient(vehicleType);
   const vehicleLabel = getVehicleLabel(vehicleType);
+  // const normalize = (val?: string | null) =>
+  //   val?.toLowerCase().trim() ?? "";
 
   const getAmenityLink = () => {
     if (vehicleType.includes("limo")) return "/limousines";
     if (vehicleType.includes("coach")) return "/coach-buses";
     return "/party-buses";
   };
+
 
 
   function getVehicleTypeLink(type?: string | null) {
@@ -358,6 +361,9 @@ export function FleetPreviewRotating({
   const [displayedVehicles, setDisplayedVehicles] = useState<VehicleData[]>(
     () => vehicles.slice(0, vehiclesPerRow)
   );
+  const normalize = (val?: string | null) =>
+    val?.toLowerCase().trim() ?? "";
+
   const [animationKeys, setAnimationKeys] = useState<number[]>(
     () => Array(vehiclesPerRow).fill(0)
   );
@@ -366,6 +372,18 @@ export function FleetPreviewRotating({
     vehicles.length > 0 && vehicles[0].type
       ? vehicles[0].type
       : null;
+  const totalVehiclesOfType = useMemo(() => {
+    if (!derivedVehicleType) return vehicles.length;
+
+    return vehicles.filter(
+      (v) => normalize(v.type) === normalize(derivedVehicleType)
+    ).length;
+  }, [vehicles, derivedVehicleType]);
+
+  const remainingCount = Math.max(
+    totalVehiclesOfType - vehiclesPerRow,
+    0
+  );
 
   const vehicleTypeLabel = derivedVehicleType
     ? getVehicleLabel(derivedVehicleType)
@@ -438,7 +456,7 @@ export function FleetPreviewRotating({
                 className="group inline-flex items-center gap-2 text-lg  font-bold  text-blue-300 hover:text-white transition-colors"
               >
     <span>
-      View 34 other {vehicleTypeLabel}
+       View {vehicles.length} other {vehicleTypeLabel}
     </span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
