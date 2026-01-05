@@ -387,3 +387,60 @@ export type PollResultsData = {
   total_votes: number;
   options: { label: string; percentage: number }[];
 };
+
+export interface PollCategoryStats {
+  totalVotes: number;
+  totalQuestions: number;
+}
+
+export const getPollStatsByCategories = async (
+  categories: string[]
+): Promise<PollCategoryStats> => {
+  const supabase = await createClient();
+
+  // Build filter for categories
+  const categoryFilters = categories
+    .filter((c) => c && c.trim() !== "")
+    .map((c) => `category_slug.ilike.%${c.trim()}%`);
+
+  // If no valid categories, get all polls
+  let pollsQuery = supabase
+    .from("polls1")
+    .select(
+      `
+      id,
+      options:poll_options1 (
+        vote_count
+      )
+    `
+    )
+    .filter("question", "not.ilike", "Your opinion on%");
+
+  if (categoryFilters.length > 0) {
+    pollsQuery = pollsQuery.or(categoryFilters.join(","));
+  }
+
+  const { data: polls, error } = await pollsQuery;
+
+  if (error) {
+    console.error("getPollStatsByCategories:", error);
+    return { totalVotes: 0, totalQuestions: 0 };
+  }
+
+  if (!polls) {
+    return { totalVotes: 0, totalQuestions: 0 };
+  }
+
+  // Calculate total votes from all options
+  const totalVotes = polls.reduce((sum, poll) => {
+    const pollVotes = (poll.options || []).reduce(
+      (pollSum, opt) => pollSum + (opt.vote_count || 0),
+      0
+    );
+    return sum + pollVotes;
+  }, 0);
+
+  const totalQuestions = polls.length;
+
+  return { totalVotes, totalQuestions };
+};

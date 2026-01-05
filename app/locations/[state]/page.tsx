@@ -2,7 +2,7 @@ import { ReviewsSection } from "@/components/sections/reviews-section";
 import { LocationPollsGrid } from "@/components/sections/location-polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { getState } from "@/lib/data/locations";
 import { notFound } from "next/navigation";
 import LocationReadyToPlan from "@/components/sections/location-ready-to-plan";
@@ -64,7 +64,8 @@ export default async function StatePage({
 
   if (!stateData) return notFound();
 
-  const reviews = (await getReviews(6)) ?? [];
+  const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   const vehicles_images = (await getRandomVehiclesImages(12)) ?? [];
 
@@ -114,7 +115,7 @@ export default async function StatePage({
         </div>
       </section>
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <LocationPlanningChecklist state={stateData} />
 

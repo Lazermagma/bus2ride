@@ -1,4 +1,4 @@
-import { getPolls, PollWithOptions } from "@/lib/data/polls";
+import { getPollsByCategory, getPollStatsByCategories, PollWithOptions } from "@/lib/data/polls";
 import { PollsColumnsClient } from "./polls-columns.client";
 import Link from "next/link";
 import Locations from "../../lib/data/local/locations.json";
@@ -90,37 +90,32 @@ export async function PollsGrid({
         (a.question ?? "").localeCompare(b.question ?? ""),
     );
 
-  const [raw1, raw2, raw3] = await Promise.all([
-    getPolls(FETCH_LIMIT, categories[0] ?? ""),
-    getPolls(FETCH_LIMIT, categories[1] ?? ""),
-    getPolls(FETCH_LIMIT, categories[2] ?? ""),
+  const [raw1, raw2, raw3, categoryStats] = await Promise.all([
+    getPollsByCategory(categories[0] ?? "", FETCH_LIMIT),
+    getPollsByCategory(categories[1] ?? "", FETCH_LIMIT),
+    getPollsByCategory(categories[2] ?? "", FETCH_LIMIT),
+    getPollStatsByCategories(categories),
   ]);
 
   const filterCityPolls = (polls: PollWithOptions[] | null) => {
-    if (!hideCities || !polls) return polls;
+    if (!polls) return [];
+    if (!hideCities) return polls;
     return polls.filter((poll) => {
       const question = poll.question?.toLowerCase() ?? "";
       return !cities.some((city) => question.includes(city));
     });
   };
 
-  const col1 = filterCityPolls(raw1)
-    ? sortByMostVotes(filterCityPolls(raw1)!).slice(0, PER_COLUMN)
-    : [];
-  const col2 = filterCityPolls(raw2)
-    ? sortByMostVotes(filterCityPolls(raw2)!).slice(0, PER_COLUMN)
-    : [];
-  const col3 = filterCityPolls(raw3)
-    ? sortByMostVotes(filterCityPolls(raw3)!).slice(0, PER_COLUMN)
-    : [];
+  const col1 = sortByMostVotes(filterCityPolls(raw1)).slice(0, PER_COLUMN);
+  const col2 = sortByMostVotes(filterCityPolls(raw2)).slice(0, PER_COLUMN);
+  const col3 = sortByMostVotes(filterCityPolls(raw3)).slice(0, PER_COLUMN);
 
   const columns: PollWithOptions[][] = [col1, col2, col3];
   const columnTitles = categories.map(humanizeCategorySlug);
 
-  const totalVotes = [...col1, ...col2, ...col3].reduce(
-    (sum, poll) => sum + totalVotesForPoll(poll),
-    0
-  );
+  // Use database stats instead of calculated from displayed polls
+  const totalVotes = categoryStats.totalVotes;
+  const totalQuestions = categoryStats.totalQuestions;
 
   return (
     <section className="relative overflow-hidden bg-gradient-to-b from-[#0d1d3a] via-[#0a1628] to-[#060e23] py-20 md:py-32">
@@ -160,7 +155,7 @@ export async function PollsGrid({
               </div>
               <div>
                 <p className="text-xs text-white/60 uppercase tracking-wide">Questions</p>
-                <p className="text-lg font-bold text-blue-300">{col1.length + col2.length + col3.length}</p>
+                <p className="text-lg font-bold text-blue-300">{totalQuestions.toLocaleString()}</p>
               </div>
             </div>
           </div>

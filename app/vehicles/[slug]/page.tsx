@@ -105,6 +105,15 @@ export default async function VehiclePage({ params }: PageProps) {
 
   const categorySlug = categoryTitle.toLowerCase().replace(" ", "-");
 
+  const linkToSameTypeFleetPage =
+    vehicle.type === "limo"
+      ? "limousines"
+      : vehicle.type === "party-bus"
+        ? "party-buses"
+        : vehicle.type === "coach"
+          ? "coach-buses"
+          : "fleet";
+
   const pollCategories =
     vehicle.type === "party-bus"
       ? (["party-bus", "limo", "coach-bus"] as const)
@@ -147,6 +156,15 @@ export default async function VehiclePage({ params }: PageProps) {
               showNavigation={false}
               viewAllLink={related[0].type as string}
             />
+            <div className="mt-8 text-center">
+              <a
+                href={`/${linkToSameTypeFleetPage}`}
+                className="inline-flex items-center gap-2 px-8 py-4 rounded-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-semibold text-base shadow-[0_10px_30px_rgba(59,130,246,0.3)] hover:shadow-[0_15px_40px_rgba(59,130,246,0.4)] transition-all duration-300 hover:scale-105"
+              >
+                <span>See All {categoryTitle}</span>
+                <span className="text-xl">→</span>
+              </a>
+            </div>
           </div>
         </section>
       )}
@@ -154,17 +172,17 @@ export default async function VehiclePage({ params }: PageProps) {
       <SectionDivider variant="dots" />
 
       {similarByCapacity.length > 0 && (
-        <section className="py-16 bg-gradient-to-b from-[#0a1628] to-[#0d1d3a]">
-          <div className="container mx-auto px-4 md:px-6">
-            <div className="text-center mb-8">
+        <section className="py-20 bg-gradient-to-b from-[#0a1628] to-[#0d1d3a]">
+          <div className="container mx-auto px-4 md:px-6 max-w-7xl">
+            <div className="text-center mb-12">
               <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-500/10 border border-purple-500/30 text-xs font-bold tracking-[0.2em] uppercase text-purple-300">
                 Similar Capacity
               </span>
-              <h2 className="mt-4 text-3xl font-extrabold text-white md:text-4xl">
+              <h2 className="mt-4 text-3xl md:text-4xl lg:text-5xl font-extrabold text-white">
                 Vehicles for Groups of {parseInt(vehicle.capacity?.replace("pax", "") || "0", 10) - 5}–{parseInt(vehicle.capacity?.replace("pax", "") || "0", 10) + 5}
               </h2>
-              <p className="mt-2 text-white/60 max-w-xl mx-auto">
-                Other options that fit a similar group size
+              <p className="mt-4 text-lg text-white/70 max-w-2xl mx-auto">
+                Other options that fit a similar group size. Explore our full fleet to find the perfect vehicle for your event.
               </p>
             </div>
             <FleetPreview
@@ -172,6 +190,15 @@ export default async function VehiclePage({ params }: PageProps) {
               showNavigation={false}
               viewAllLink="fleet"
             />
+            <div className="mt-10 text-center">
+              <a
+                href="/fleet"
+                className="inline-flex items-center gap-2 px-10 py-5 rounded-full bg-gradient-to-r from-purple-600 via-indigo-600 to-blue-600 text-white font-bold text-lg shadow-[0_10px_30px_rgba(139,92,246,0.3)] hover:shadow-[0_15px_40px_rgba(139,92,246,0.4)] transition-all duration-300 hover:scale-105"
+              >
+                <span>See All Vehicles</span>
+                <span className="text-2xl">→</span>
+              </a>
+            </div>
           </div>
         </section>
       )}

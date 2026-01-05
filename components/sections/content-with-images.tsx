@@ -79,63 +79,67 @@ export async function OtherFleets({
   return (
     <section
       className={cn(
-        // Matching the dark blue background from the image
-        `max-w-6xl mx-auto bg-gradient-to-br from-[#122a5c] to-[#0f2148]
-        rounded-3xl shadow-xl my-12 py-12 px-6 border border-blue-800/30`,
+        `max-w-5xl mx-auto bg-gradient-to-br from-[#122a5c] to-[#0f2148]
+        rounded-2xl shadow-xl my-8 py-8 px-6 border border-blue-800/30`,
         className,
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
         {/* Header Section */}
-        <div className="text-center mx-auto mb-16 space-y-4">
+        <div className="text-center mx-auto mb-8 space-y-2">
           <h2
-            className="text-4xl md:text-5xl font-extrabold text-center mb-4
-              text-white font-serif tracking-tight"
+            className="text-2xl md:text-3xl font-bold text-center
+              text-white tracking-tight"
           >
             {cardsWithImages.length >= 2 ? (
-              <>We Also Have {cardsWithImages[0]?.title || 'Other Options'} & {cardsWithImages[1]?.title || 'More Vehicles'}</>
+              <>Also Available: {cardsWithImages[0]?.title || 'Other Options'} & {cardsWithImages[1]?.title || 'More Vehicles'}</>
             ) : (
               <>Explore Our Other Vehicle Options</>
             )}
           </h2>
-          <p className="text-blue-100 text-center max-w-3xl mx-auto mb-8">
-            Need something different? Explore our other options for elegant
-            arrivals or simple, comfy transport.
+          <p className="text-blue-100/80 text-sm text-center max-w-2xl mx-auto">
+            Need something different? Click to view other vehicle options for {location?.city_name || 'this location'}.
           </p>
         </div>
 
-        {/* 2-Column Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* 2-Column Grid - More Compact */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {cardsWithImages.map((card) => (
             <Link
               key={card.id}
               href={`${location ? `/locations/${location.state_slug}/${card.link}-${location.city_slug}` : `/${card.link}`}`}
-              className="group"
+              className="group relative h-full flex"
             >
               <div
-                className="rounded-2xl border border-blue-800/30 bg-[#12244e]
-                  overflow-hidden shadow-xl"
+                className="rounded-xl border-2 border-blue-800/40 bg-[#12244e]
+                  overflow-hidden shadow-lg transition-all duration-300
+                  hover:border-blue-500/60 hover:shadow-xl hover:scale-[1.02] flex flex-col w-full"
               >
-                {/* Image Area */}
-                <div className="relative h-96 w-full bg-[#173264]">
+                {/* Image Area - Smaller */}
+                <div className="relative h-48 w-full bg-[#173264] flex-shrink-0">
                   <Image
                     src={card.imageUrl || "/placeholder-vehicle.jpg"}
                     alt={card.title || "Vehicle"}
                     sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                     fill
                     className="h-full w-full object-cover
-                      group-hover:scale-[1.02] transition-transform"
+                      group-hover:scale-[1.05] transition-transform duration-300"
                   />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
 
-                {/* Labels */}
-                <div className="px-6 py-5">
-                  <h3 className="text-2xl font-extrabold text-white text-center">
+                {/* Labels - More Compact */}
+                <div className="px-4 py-4 bg-gradient-to-b from-[#12244e] to-[#0f1f3d] flex flex-col flex-grow">
+                  <h3 className="text-lg font-bold text-white text-center mb-1 group-hover:text-blue-300 transition-colors">
                     {card.title || "Vehicle Option"}
                   </h3>
-                  <p className="text-blue-200 text-center">
+                  <p className="text-blue-200/80 text-sm text-center mb-3">
                     {card.description || "Explore our vehicle options for your transportation needs."}
                   </p>
+                  <div className="mt-auto flex items-center justify-center gap-2 text-xs text-blue-300/60 group-hover:text-blue-300 transition-colors">
+                    <span>View {card.title}</span>
+                    <span className="group-hover:translate-x-1 transition-transform">→</span>
+                  </div>
                 </div>
               </div>
             </Link>

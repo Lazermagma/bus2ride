@@ -118,7 +118,7 @@ export function VehicleTypeIntro({ vehicleType }: VehicleTypeIntroProps) {
                     <ArrowRight className="w-4 h-4 ml-2" />
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="rounded-xl border-white/20 text-white hover:bg-white/10">
+                <Button asChild variant="outline" className="rounded-xl border-white/20 !bg-transparent !text-white hover:!bg-white/10 hover:!text-white">
                   <Link href="/contact">
                     Get a Quote
                   </Link>

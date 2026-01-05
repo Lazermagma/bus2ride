@@ -92,7 +92,7 @@ export function ReviewsSection({
               </div>
               <div className="hidden md:flex items-center gap-2 text-sm text-white/60">
                 <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                <span>{reviews.length}+ verified reviews</span>
+                <span>{(totalCount ?? reviews.length)}+ verified reviews</span>
               </div>
             </div>
           </div>
