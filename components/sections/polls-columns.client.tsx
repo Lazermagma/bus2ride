@@ -142,8 +142,7 @@ export function PollsColumnsClient({
 
                   <PollCard
                     poll={poll}
-                    advanceDelayMs={2000}
-                    onAdvance={() => scrollToNext(colIdx, idx)}
+
                   />
                 </div>
               ))}
