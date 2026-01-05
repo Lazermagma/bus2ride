@@ -6,10 +6,13 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { VehicleData } from "@/lib/data/vehicles";
 import { toPublicStorageUrl } from "@/lib/helpers/storage";
-import { Users, Phone, ChevronRight, Check, ChevronLeft, ZoomIn, Mail, Sparkles } from "lucide-react";
+import { Users, Phone, ChevronRight, Check, ChevronLeft, ZoomIn, Mail, Sparkles, Search, X, SlidersHorizontal, ArrowRight, Info } from "lucide-react";
 import { InstantQuoteButton } from "@/components/InstantQuoteButton";
 import { openLiveChat } from "@/lib/livechat";
 import { Button } from "../ui/button";
+import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 import {
   Dialog,
   DialogContent,
@@ -247,7 +250,22 @@ function FleetVehicleCard({ vehicle }: { vehicle: VehicleData }) {
 
         {/* Buttons */}
         <div className="p-4 space-y-3">
-          <Link href="/faq" className="block w-full py-2 rounded-xl text-center font-semibold text-black bg-white animate-pulse hover:animate-none hover:scale-[1.02] transition-all">Learn more</Link>
+          <Link 
+            href={vehicle.slug ? `/vehicles/${vehicle.slug}` : "#"} 
+            className={cn(
+              "group relative flex items-center justify-center gap-2 w-full py-3 rounded-xl",
+              "font-semibold text-white transition-all duration-300 overflow-hidden",
+              "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500",
+              "hover:from-pink-600 hover:via-purple-600 hover:to-blue-600",
+              "hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/50",
+              "active:scale-[0.98]"
+            )}
+          >
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+            <Info className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">Learn More</span>
+            <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+          </Link>
           <div className="flex gap-2">
             <Button variant="outline" size="sm" className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold hover:bg-white hover:text-slate-900 transition-all" asChild>
               <a href="tel:8885352566" className="flex items-center justify-center gap-1"><Phone className="w-3 h-3" />Call</a>
@@ -266,23 +284,113 @@ function FleetVehicleCard({ vehicle }: { vehicle: VehicleData }) {
   );
 }
 
+// Common amenities for filtering
+const AMENITY_FILTERS = [
+  "Bluetooth",
+  "LED Lights",
+  "Bar",
+  "Restroom",
+  "TV",
+  "Leather Seats",
+  "Privacy Partition",
+  "Fiber Optics",
+  "Dance Pole",
+  "Karaoke",
+  "BYOB Friendly",
+  "Pro Driver",
+];
+
+// Capacity ranges
+const CAPACITY_RANGES = [
+  { label: "15-20", min: 15, max: 20 },
+  { label: "21-30", min: 21, max: 30 },
+  { label: "31-40", min: 31, max: 40 },
+  { label: "41-50", min: 41, max: 50 },
+  { label: "50+", min: 50, max: 999 },
+];
+
 export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState<string[]>([]);
+  const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
+  const [selectedCapacityRanges, setSelectedCapacityRanges] = useState<string[]>([]);
+  const [showFilters, setShowFilters] = useState(false);
 
-  const vehicleTypes = useMemo(() => Array.from(new Set(vehicles.map(v => v.type ?? "unknown"))), [vehicles]);
+  // Extract all unique amenities from vehicles
+  const availableAmenities = useMemo(() => {
+    const allAmenities = new Set<string>();
+    vehicles.forEach(v => {
+      v.amenities?.forEach(a => {
+        // Check if amenity matches any filter (case-insensitive)
+        const matched = AMENITY_FILTERS.find(filter => 
+          a.toLowerCase().includes(filter.toLowerCase()) || 
+          filter.toLowerCase().includes(a.toLowerCase())
+        );
+        if (matched) allAmenities.add(matched);
+      });
+    });
+    return Array.from(allAmenities).sort();
+  }, [vehicles]);
+
+  // Parse capacity from string like "25 pax" to number
+  const parseCapacity = (capacity?: string | null): number => {
+    if (!capacity) return 0;
+    const match = capacity.match(/(\d+)/);
+    return match ? parseInt(match[1], 10) : 0;
+  };
 
   const filteredVehicles = useMemo(() => {
     return vehicles.filter(v => {
-      const nameMatch = v.name?.toLowerCase().includes(searchTerm.toLowerCase());
-      const typeMatch = filters.length ? filters.includes(v.type ?? "unknown") : true;
-      return nameMatch && typeMatch;
-    });
-  }, [vehicles, searchTerm, filters]);
+      // 1. Text Search (Name, description, capacity)
+      const searchLower = searchTerm.toLowerCase();
+      const nameMatch = v.name?.toLowerCase().includes(searchLower);
+      const capacityMatch = v.capacity?.toLowerCase().includes(searchLower);
+      const descriptionMatch = v.description?.toLowerCase().includes(searchLower);
+      const matchesSearch = !searchTerm || nameMatch || capacityMatch || descriptionMatch;
 
-  const toggleFilter = (type: string) => {
-    setFilters(prev => prev.includes(type) ? prev.filter(f => f !== type) : [...prev, type]);
+      // 2. Amenity Filter (Must have ALL selected amenities)
+      const vehicleAmenitiesLower = v.amenities?.map(a => a.toLowerCase()) || [];
+      const matchesAmenities = selectedAmenities.length === 0 || selectedAmenities.every(filter => {
+        return vehicleAmenitiesLower.some(vAmenity => 
+          vAmenity.includes(filter.toLowerCase()) || 
+          filter.toLowerCase().includes(vAmenity)
+        );
+      });
+
+      // 3. Capacity Range Filter
+      const vehicleCapacity = parseCapacity(v.capacity);
+      const matchesCapacity = selectedCapacityRanges.length === 0 || selectedCapacityRanges.some(rangeLabel => {
+        const range = CAPACITY_RANGES.find(r => r.label === rangeLabel);
+        if (!range) return false;
+        return vehicleCapacity >= range.min && vehicleCapacity <= range.max;
+      });
+
+      return matchesSearch && matchesAmenities && matchesCapacity;
+    });
+  }, [vehicles, searchTerm, selectedAmenities, selectedCapacityRanges]);
+
+  const toggleAmenity = (amenity: string) => {
+    setSelectedAmenities(prev => 
+      prev.includes(amenity) 
+        ? prev.filter(a => a !== amenity) 
+        : [...prev, amenity]
+    );
   };
+
+  const toggleCapacityRange = (rangeLabel: string) => {
+    setSelectedCapacityRanges(prev => 
+      prev.includes(rangeLabel) 
+        ? prev.filter(r => r !== rangeLabel) 
+        : [...prev, rangeLabel]
+    );
+  };
+
+  const clearAllFilters = () => {
+    setSearchTerm("");
+    setSelectedAmenities([]);
+    setSelectedCapacityRanges([]);
+  };
+
+  const hasActiveFilters = searchTerm || selectedAmenities.length > 0 || selectedCapacityRanges.length > 0;
 
   if (!vehicles.length) return null;
 
@@ -291,31 +399,152 @@ export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridP
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(59,130,246,0.08),transparent_50%)]" />
       <div className="relative py-12 md:py-16 max-w-7xl mx-auto px-4">
         {title && (
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-1 h-8 rounded-full bg-gradient-to-b from-blue-400 to-indigo-600" />
+          <div className="flex items-center gap-3 mb-8">
+            <div className="w-1 h-8 rounded-full bg-gradient-to-b from-pink-400 via-purple-500 to-blue-600" />
             <h2 className="text-2xl md:text-3xl font-bold text-white">{title}</h2>
           </div>
         )}
 
-        {/* Search + Filters */}
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 mb-6">
-          <input type="text" placeholder="Search vehicles..." className="flex-1 p-2 rounded-lg text-black" value={searchTerm} onChange={e => setSearchTerm(e.target.value)} />
-          <div className="flex flex-wrap gap-2">
-            {vehicleTypes.map(type => (
-              <button key={type} onClick={() => toggleFilter(type)} className={cn(
-                "px-3 py-1 rounded-full text-sm font-semibold border transition-all",
-                filters.includes(type) ? "bg-blue-500 text-white border-blue-500" : "bg-white/10 text-white border-white/20 hover:bg-white/20"
-              )}>
-                {getVehicleLabel(type)}
+        {/* Enhanced Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-white/40" />
+            <Input
+              type="text"
+              placeholder="Search by name, capacity, or features..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="h-14 w-full rounded-full bg-white/5 border-2 border-white/10 pl-12 pr-12 text-white text-lg placeholder:text-white/40 focus:border-pink-500/50 focus:ring-pink-500/20 transition-all"
+            />
+            {searchTerm && (
+              <button
+                onClick={() => setSearchTerm("")}
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors"
+              >
+                <X className="h-5 w-5" />
               </button>
-            ))}
+            )}
           </div>
         </div>
 
-        {/* Vehicle Grid */}
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {filteredVehicles.map(vehicle => <FleetVehicleCard key={vehicle.id} vehicle={vehicle} />)}
+        {/* Filter Controls */}
+        <div className="mb-6 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <Button
+              variant={showFilters || hasActiveFilters ? "default" : "outline"}
+              onClick={() => setShowFilters(!showFilters)}
+              className={cn(
+                "gap-2 rounded-full border-2 transition-all",
+                showFilters || hasActiveFilters
+                  ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white border-transparent hover:from-pink-600 hover:to-purple-600"
+                  : "bg-white/5 text-white border-white/20 hover:bg-white/10"
+              )}
+            >
+              <SlidersHorizontal className="h-4 w-4" />
+              Filters
+              {hasActiveFilters && (
+                <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">
+                  {selectedAmenities.length + selectedCapacityRanges.length}
+                </span>
+              )}
+            </Button>
+            {hasActiveFilters && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={clearAllFilters}
+                className="text-white/60 hover:text-white gap-2"
+              >
+                <X className="h-4 w-4" />
+                Clear All
+              </Button>
+            )}
+          </div>
+
+          {/* Expandable Filter Panel */}
+          {showFilters && (
+            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6 animate-in slide-in-from-top-2">
+              {/* Capacity Filters */}
+              <div>
+                <Label className="text-white font-semibold mb-3 block">Capacity</Label>
+                <div className="flex flex-wrap gap-3">
+                  {CAPACITY_RANGES.map(range => (
+                    <div key={range.label} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`capacity-${range.label}`}
+                        checked={selectedCapacityRanges.includes(range.label)}
+                        onCheckedChange={() => toggleCapacityRange(range.label)}
+                        className="border-white/30 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                      />
+                      <Label
+                        htmlFor={`capacity-${range.label}`}
+                        className="text-sm cursor-pointer font-medium text-white/90 hover:text-white transition-colors"
+                      >
+                        {range.label} passengers
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Amenity Filters */}
+              {availableAmenities.length > 0 && (
+                <div>
+                  <Label className="text-white font-semibold mb-3 block">Amenities</Label>
+                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                    {availableAmenities.map(amenity => (
+                      <div key={amenity} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`amenity-${amenity}`}
+                          checked={selectedAmenities.includes(amenity)}
+                          onCheckedChange={() => toggleAmenity(amenity)}
+                          className="border-white/30 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                        />
+                        <Label
+                          htmlFor={`amenity-${amenity}`}
+                          className="text-sm cursor-pointer font-medium text-white/90 hover:text-white transition-colors"
+                        >
+                          {amenity}
+                        </Label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
+        {/* Results Count */}
+        {hasActiveFilters && (
+          <div className="mb-6 text-white/70 text-sm">
+            Showing {filteredVehicles.length} of {vehicles.length} vehicles
+          </div>
+        )}
+
+        {/* Vehicle Grid */}
+        {filteredVehicles.length > 0 ? (
+          <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {filteredVehicles.map(vehicle => (
+              <FleetVehicleCard key={vehicle.id} vehicle={vehicle} />
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-white/5 mb-4">
+              <Search className="w-8 h-8 text-white/40" />
+            </div>
+            <h3 className="text-xl font-semibold text-white mb-2">No vehicles found</h3>
+            <p className="text-white/60 mb-4">Try adjusting your search or filters</p>
+            <Button
+              variant="outline"
+              onClick={clearAllFilters}
+              className="rounded-full border-white/20 text-white hover:bg-white/10"
+            >
+              Clear all filters
+            </Button>
+          </div>
+        )}
       </div>
     </section>
   );

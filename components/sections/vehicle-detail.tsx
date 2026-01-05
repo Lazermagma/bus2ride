@@ -17,6 +17,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { VehicleData } from "@/lib/data/vehicles";
 
@@ -467,6 +468,11 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                 className="md:max-w-5xl max-w-2xl border-0 bg-transparent p-0
                   shadow-none"
               >
+                <VisuallyHidden.Root>
+                  <DialogTitle>
+                    {vehicle.name} - Photo Gallery
+                  </DialogTitle>
+                </VisuallyHidden.Root>
                 <div
                   className="relative overflow-hidden rounded-3xl border
                     border-white/10 bg-slate-950/90 shadow-2xl"
@@ -549,7 +555,7 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                       group-hover:opacity-100"
                     style={{
                       background:
-                        "background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 55%);",
+                        "radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 55%)",
                     }}
                   ></span>
                 </a>

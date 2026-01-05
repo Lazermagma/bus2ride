@@ -199,11 +199,11 @@ export default async function Home() {
 
       <PremiumDivider />
 
-      {/*<FaqSearchSection*/}
-      {/*  category="home"*/}
-      {/*  title="Homepage FAQ"*/}
-      {/*  description="Search across the 50 most common things riders ask before they book. Everything is curated directly from real conversations, so you get honest answers fast."*/}
-      {/*/>*/}
+      <FaqSearchSection
+        category="home"
+        title="Homepage FAQ"
+        description="Search across the 50 most common things riders ask before they book. Everything is curated directly from real conversations, so you get honest answers fast."
+      />
 
       <GlobalCTAs source="Homepage - Footer" variant="banner" />
     </div>

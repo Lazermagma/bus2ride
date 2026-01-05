@@ -6,7 +6,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { VehicleData } from "@/lib/data/vehicles";
 import { toPublicStorageUrl } from "@/lib/helpers/storage";
-import { ArrowRight, Sparkles, Users, Phone, Mail, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, Users, Phone, Mail, ChevronRight, Info } from "lucide-react";
 import { Button } from "../ui/button";
 import { InstantQuoteButton } from "../InstantQuoteButton";
 
@@ -284,17 +284,20 @@ function RotatingVehicleCard({
       <div className="flex flex-col">
         <div className="w-full px-4 mt-2">
           <Link
-            href={getVehicleTypeLink(vehicle.type)}
-            className="
-      block w-full
-      bg-white py-1.5 rounded-xl
-      text-black text-center font-semibold
-      animate-pulse
-      hover:animate-none hover:scale-[1.02]
-      transition
-    "
+            href={vehicle.slug ? `/vehicles/${vehicle.slug}` : getVehicleTypeLink(vehicle.type)}
+            className={cn(
+              "group relative flex items-center justify-center gap-2 w-full py-3 rounded-xl",
+              "font-semibold text-white transition-all duration-300 overflow-hidden",
+              "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500",
+              "hover:from-pink-600 hover:via-purple-600 hover:to-blue-600",
+              "hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/50",
+              "active:scale-[0.98]"
+            )}
           >
-            Learn more
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+            <Info className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">Learn More</span>
+            <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
           </Link>
         </div>
 
