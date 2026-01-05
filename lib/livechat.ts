@@ -9,6 +9,20 @@ declare global {
     __lc?: {
       license: number;
       group?: number;
+      integration_name?: string;
+      product_name?: string;
+      asyncInit?: boolean;
+    };
+    LiveChatWidget?: {
+      _q: any[];
+      _h: any;
+      _v: string;
+      on: (...args: any[]) => void;
+      once: (...args: any[]) => void;
+      off: (...args: any[]) => void;
+      get: (...args: any[]) => any;
+      call: (...args: any[]) => void;
+      init: () => void;
     };
     __lc_ready?: boolean;
     __lc_ready_callbacks?: Array<() => void>;

@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, 
   TrendingUp, MapPin, Search, Users, Flame, ChevronRight,
-  BarChart3, Sparkles, CheckCircle2, Globe, Building2, X, Loader2, Eye
+  BarChart3, Sparkles, CheckCircle2, Globe, Building2, X, Loader2, Eye, Code
 } from "lucide-react";
 import type { PollWithOptions } from "@/lib/data/polls";
 import type { LucideIcon } from "lucide-react";

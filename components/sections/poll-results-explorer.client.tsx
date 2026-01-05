@@ -6,7 +6,7 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, 
   TrendingUp, MapPin, Search, Users, Flame, ChevronRight,
-  BarChart3, Sparkles, Globe, Building2, X, Loader2, Trophy, Eye
+  BarChart3, Sparkles, Globe, Building2, X, Loader2, Trophy, Eye, Code
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";

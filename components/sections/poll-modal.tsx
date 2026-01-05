@@ -4,7 +4,7 @@ import * as React from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, Sparkles, Flame, Star, Zap, Trophy, ThumbsUp, Share2 } from "lucide-react";
+import { Loader2, Sparkles, Flame, Star, Zap, Trophy, ThumbsUp, Share2, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import type { PollWithOptions } from "@/lib/data/polls";
 import { cn } from "@/lib/utils";
@@ -61,18 +61,20 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
   const [votes, setVotes] = React.useState<Record<string, number>>({});
   const [embedModalOpen, setEmbedModalOpen] = React.useState(false);
   const [embedType, setEmbedType] = React.useState<"live" | "results">("live");
+  const [origin, setOrigin] = React.useState("https://bus2ride.com");
   
   const config = THEME_CONFIG[theme];
   const Icon = config.icon;
   
   React.useEffect(() => {
-    setOrigin(window.location.origin);
+    if (typeof window !== "undefined") {
+      setOrigin(window.location.origin);
+    }
   }, []);
   
   React.useEffect(() => {
     if (poll && isOpen) {
       setHasVoted(false);
-      setCopied(false);
       setEmbedType("live");
       setVotes(
         (poll.options ?? []).reduce<Record<string, number>>((acc, opt) => {
@@ -87,6 +89,11 @@ export function PollModal({ poll, isOpen, onClose, theme = "trending" }: PollMod
   
   const options = poll.options ?? [];
   const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
+  
+  const openEmbedModal = (type: "live" | "results") => {
+    setEmbedType(type);
+    setEmbedModalOpen(true);
+  };
   
   const handleVote = async (optionId: string) => {
     if (hasVoted || isSubmitting) return;

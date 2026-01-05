@@ -2,34 +2,6 @@
 
 import Script from "next/script";
 
-declare global {
-  interface Window {
-    __lc?: {
-      license: number;
-      integration_name?: string;
-      product_name?: string;
-      asyncInit?: boolean;
-    };
-    LiveChatWidget?: {
-      _q: any[];
-      _h: any;
-      _v: string;
-      on: (...args: any[]) => void;
-      once: (...args: any[]) => void;
-      off: (...args: any[]) => void;
-      get: (...args: any[]) => any;
-      call: (...args: any[]) => void;
-      init: () => void;
-    };
-    LC_API?: {
-      open_chat_window: () => void;
-      minimize_chat_window: () => void;
-      hide_chat_window: () => void;
-      set_custom_variables: (vars: Array<{ name: string; value: string }>) => void;
-    };
-  }
-}
-
 export function LiveChatWidget() {
   return (
     <>
