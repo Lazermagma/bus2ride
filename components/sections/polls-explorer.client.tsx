@@ -6,12 +6,13 @@ import { Progress } from "@/components/ui/progress";
 import { 
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, 
   TrendingUp, MapPin, Search, Users, Flame, ChevronRight,
-  BarChart3, Sparkles, CheckCircle2, Globe, Building2, Code, Copy, Check, X, Loader2, Eye
+  BarChart3, Sparkles, CheckCircle2, Globe, Building2, X, Loader2, Eye, Code
 } from "lucide-react";
 import type { PollWithOptions } from "@/lib/data/polls";
 import type { LucideIcon } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import LocationsData from "@/lib/data/local/locations.json";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 const ICON_MAP: Record<string, LucideIcon> = {
   Music, Heart, PartyPopper, Briefcase, GraduationCap, Crown, Car, TrendingUp, MapPin, Sparkles,
@@ -38,72 +39,7 @@ interface PollsExplorerProps {
   locations: LocationConfig[];
 }
 
-function EmbedModal({ poll, embedType, isOpen, onClose }: { 
-  poll: PollWithOptions | null; 
-  embedType: "live" | "results";
-  isOpen: boolean; 
-  onClose: () => void;
-}) {
-  const [copied, setCopied] = useState(false);
-  const [origin, setOrigin] = useState("https://bus2ride.com");
-  
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-  
-  if (!poll) return null;
-  
-  const embedPath = embedType === "live" 
-    ? `/polls/embed/${poll.id}`
-    : `/polls/results/embed/${poll.id}`;
-  
-  const embedCode = `<iframe src="${origin}${embedPath}" width="100%" height="400" frameborder="0" style="border-radius: 12px; max-width: 500px;"></iframe>`;
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(embedCode);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-lg bg-[#0d1d3a] border-white/10">
-        <DialogHeader className="pb-4 border-b border-white/10">
-          <div className="flex items-center gap-3">
-            <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} flex items-center justify-center`}>
-              <Code className="w-5 h-5 text-white" />
-            </div>
-            <div>
-              <DialogTitle className="text-lg text-white">
-                Embed {embedType === "live" ? "Live Poll" : "Poll Results"}
-              </DialogTitle>
-              <p className="text-white/50 text-sm">
-                {embedType === "live" ? "Interactive voting for your website" : "Show results on your website"}
-              </p>
-            </div>
-          </div>
-        </DialogHeader>
-        
-        <div className="py-4">
-          <p className="text-white/70 text-sm mb-3">{poll.question}</p>
-          
-          <div className="p-4 rounded-xl bg-black/30 border border-white/10 mb-4">
-            <p className="text-white/50 text-xs mb-2">Copy this code:</p>
-            <code className="text-xs text-emerald-400 break-all">{embedCode}</code>
-          </div>
-          
-          <button
-            onClick={handleCopy}
-            className={`w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-gradient-to-r ${embedType === "live" ? "from-violet-500 to-purple-500" : "from-amber-500 to-orange-500"} text-white font-medium hover:opacity-90 transition-all`}
-          >
-            {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
-            {copied ? "Copied!" : "Copy Embed Code"}
-          </button>
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// Using the shared PollEmbedModal component instead
 
 function PollCard({ 
   poll,
@@ -138,28 +74,31 @@ function PollCard({
   };
 
   return (
-    <div className="p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
-      <h4 className="text-white font-medium text-sm mb-3">{poll.question}</h4>
+    <div className="p-5 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all">
+      <h4 className="text-white font-medium text-base mb-4">{poll.question}</h4>
       
-      <div className="space-y-1.5">
+      <div className="space-y-2 mb-4">
         {options.map((option) => {
           const count = votes[option.id] ?? 0;
           const percent = totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
 
           return hasVoted ? (
-            <div key={option.id} className="space-y-0.5">
-              <div className="flex justify-between text-xs">
-                <span className="text-white/80">{option.label}</span>
-                <span className="text-white/50">{percent}%</span>
+            <div key={option.id} className="space-y-1">
+              <div className="flex justify-between items-center text-sm">
+                <span className="text-white/90 font-medium">{option.label}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-white/70 text-xs">{count.toLocaleString()} votes</span>
+                  <span className="text-white/50 text-sm font-semibold">{percent}%</span>
+                </div>
               </div>
-              <Progress value={percent} className="h-1.5" />
+              <Progress value={percent} className="h-2" />
             </div>
           ) : (
             <button
               key={option.id}
               onClick={() => handleVote(option.id)}
               disabled={isVoting}
-              className="w-full text-left px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/80 text-xs transition-all disabled:opacity-50"
+              className="w-full text-left px-4 py-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20 text-white/90 text-sm transition-all disabled:opacity-50"
             >
               {option.label}
             </button>
@@ -167,31 +106,36 @@ function PollCard({
         })}
       </div>
 
-      <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/10">
-        {hasVoted ? (
-          <p className="text-xs text-emerald-400 flex items-center gap-1">
-            <CheckCircle2 className="w-3 h-3" /> Voted!
-          </p>
-        ) : (
-          <p className="text-white/30 text-xs">{totalVotes.toLocaleString()} votes</p>
-        )}
-        <div className="flex items-center gap-2">
+      <div className="flex flex-col gap-3 mt-4 pt-4 border-t border-white/10">
+        <div className="flex items-center gap-3">
+          {hasVoted ? (
+            <p className="text-sm text-emerald-400 flex items-center gap-1.5 font-medium">
+              <CheckCircle2 className="w-4 h-4" /> Voted!
+            </p>
+          ) : (
+            <div className="flex items-center gap-2">
+              <Users className="w-4 h-4 text-white/50" />
+              <p className="text-white/70 text-sm font-medium">{totalVotes.toLocaleString()} {totalVotes === 1 ? 'vote' : 'votes'}</p>
+            </div>
+          )}
+        </div>
+        <div className="flex flex-col gap-2">
           {onEmbedLive && (
             <button 
               onClick={(e) => { e.stopPropagation(); onEmbedLive(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-xs"
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-violet-500/20 text-violet-300 hover:bg-violet-500/30 transition-colors text-sm font-medium w-full"
             >
-              <Code className="w-3 h-3" />
-              Embed Poll
+              <Code className="w-4 h-4" />
+              Embed Live Poll
             </button>
           )}
           {onEmbedResults && (
             <button 
               onClick={(e) => { e.stopPropagation(); onEmbedResults(poll); }}
-              className="flex items-center gap-1 px-2 py-1 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-xs"
+              className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg bg-amber-500/20 text-amber-300 hover:bg-amber-500/30 transition-colors text-sm font-medium w-full"
             >
-              <Eye className="w-3 h-3" />
-              Results
+              <Eye className="w-4 h-4" />
+              Embed Poll Results
             </button>
           )}
         </div>
@@ -494,7 +438,7 @@ function CityPollsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="w-[98vw] max-w-none max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10 mx-auto">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-cyan-500 flex items-center justify-center">
@@ -513,7 +457,7 @@ function CityPollsModal({
         {onSwitchCategory && allCategories.length > 0 && (
           <div className="py-3 border-b border-white/10">
             <p className="text-white/50 text-xs mb-2">Or browse by category:</p>
-            <div className="flex flex-wrap gap-1.5 max-h-16 overflow-y-auto">
+            <div className="flex flex-wrap gap-1.5  max-h-16 overflow-y-auto">
               {allCategories.slice(0, 8).map(cat => {
                 const CatIcon = ICON_MAP[cat.iconName] || Car;
                 return (
@@ -549,7 +493,7 @@ function CityPollsModal({
             </div>
           ) : polls.length > 0 ? (
             <>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {polls.map((poll) => (
                   <PollCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
                 ))}
@@ -690,7 +634,7 @@ function CategoryPollsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10">
+      <DialogContent className="w-[98vw] max-w-none max-h-[90vh] overflow-hidden bg-[#0d1d3a] border-white/10 mx-auto">
         <DialogHeader className="pb-4 border-b border-white/10">
           <div className="flex items-center gap-3">
             <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${category.gradient} flex items-center justify-center`}>
@@ -708,7 +652,7 @@ function CategoryPollsModal({
         {/* Quick navigation to other categories */}
         <div className="py-3 border-b border-white/10">
           <p className="text-white/50 text-xs mb-2">Switch category:</p>
-          <div className="flex flex-wrap gap-1.5 max-h-20 overflow-y-auto">
+          <div className="flex flex-wrap gap-1.5 max-h-24 overflow-y-auto pr-2 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent">
             {allCategories.filter(c => c.slug !== category.slug).slice(0, 12).map(cat => {
               const CatIcon = ICON_MAP[cat.iconName] || Car;
               return (
@@ -732,7 +676,7 @@ function CategoryPollsModal({
             </div>
           ) : (
             <>
-              <div className="grid gap-3 md:grid-cols-2">
+              <div className="grid gap-4 sm:grid-cols-2">
                 {polls.map((poll) => (
                   <PollCard key={poll.id} poll={poll} onEmbedLive={onEmbedLive} onEmbedResults={onEmbedResults} />
                 ))}
@@ -1012,12 +956,14 @@ export function PollsExplorer({ categories, locations }: PollsExplorerProps) {
         onEmbedResults={handleEmbedResults}
       />
 
-      <EmbedModal 
-        poll={embedPoll} 
-        embedType={embedType}
-        isOpen={!!embedPoll} 
-        onClose={() => setEmbedPoll(null)} 
-      />
+      {embedPoll && (
+        <PollEmbedModal 
+          poll={embedPoll} 
+          embedType={embedType}
+          isOpen={!!embedPoll} 
+          onClose={() => setEmbedPoll(null)} 
+        />
+      )}
     </section>
   );
 }

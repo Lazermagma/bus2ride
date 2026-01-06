@@ -3,7 +3,7 @@
 import { Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { openLiveChat } from "@/lib/livechat";
+import { openLiveChatModal } from "@/lib/livechat";
 
 interface InstantQuoteButtonProps {
   source?: string;
@@ -19,7 +19,7 @@ export function InstantQuoteButton({
   variant = "default"
 }: InstantQuoteButtonProps) {
   const handleClick = () => {
-    openLiveChat(source, typeof window !== "undefined" ? window.location.pathname : "/");
+    openLiveChatModal(source, typeof window !== "undefined" ? window.location.pathname : "/");
   };
 
   const sizeClasses = {

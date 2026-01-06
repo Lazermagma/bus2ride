@@ -75,6 +75,7 @@ const fallbackHeroes: Record<string, HeroData> = {
     subtitle: "Browse our complete fleet of party buses, limousines, and coach buses available for your next event.",
     ctas: [
       { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,
@@ -89,7 +90,8 @@ const fallbackHeroes: Record<string, HeroData> = {
     title: "Transportation Polls—Your Voice Matters",
     subtitle: "Vote on party planning topics and see what others think about transportation, events, and celebrations.",
     ctas: [
-      { href: "/events", label: "Browse Events", style: "primary" },
+      { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,
@@ -119,7 +121,8 @@ const fallbackHeroes: Record<string, HeroData> = {
     title: "FAQ—Your Questions Answered",
     subtitle: "Find answers to common questions about bookings, pricing, vehicles, and policies.",
     ctas: [
-      { href: "/contact", label: "Contact Us", style: "primary" },
+      { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,
@@ -135,6 +138,7 @@ const fallbackHeroes: Record<string, HeroData> = {
     subtitle: "Calculators, checklists, and guides to help you plan the perfect group transportation.",
     ctas: [
       { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,
@@ -164,7 +168,8 @@ const fallbackHeroes: Record<string, HeroData> = {
     title: "Blog—Stories & Inspiration",
     subtitle: "Event ideas, planning guides, and stories from memorable celebrations.",
     ctas: [
-      { href: "/events", label: "Browse Events", style: "primary" },
+      { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,

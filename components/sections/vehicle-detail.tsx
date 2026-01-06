@@ -17,8 +17,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import * as VisuallyHidden from "@radix-ui/react-visually-hidden";
 import { Button } from "@/components/ui/button";
 import { VehicleData } from "@/lib/data/vehicles";
+import { openLiveChat } from "@/lib/livechat";
 
 export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
   // const [activeImage, setActiveImage] = React.useState(0);
@@ -467,6 +469,11 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                 className="md:max-w-5xl max-w-2xl border-0 bg-transparent p-0
                   shadow-none"
               >
+                <VisuallyHidden.Root>
+                  <DialogTitle>
+                    {vehicle.name} - Photo Gallery
+                  </DialogTitle>
+                </VisuallyHidden.Root>
                 <div
                   className="relative overflow-hidden rounded-3xl border
                     border-white/10 bg-slate-950/90 shadow-2xl"
@@ -532,11 +539,11 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
             <div className="grid gap-4 pt-1 lg:items-start">
               {/* Buttons and tags */}
               <div className="flex flex-wrap gap-3">
-                <a
-                  href="/contact"
+                <button
+                  onClick={() => openLiveChat(`Vehicle Detail - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                   className="group relative overflow-hidden rounded-full px-7
                     py-3 text-sm font-semibold uppercase tracking-[0.22em]
-                    text-slate-950 shadow-lg transition hover:-translate-y-0.5"
+                    text-slate-950 shadow-lg transition hover:-translate-y-0.5 cursor-pointer"
                   style={{
                     background:
                       "linear-gradient(90deg, rgba(52,211,153,1) 0%, rgba(34,197,94,1) 50%, rgba(16,185,129,1) 100%)",
@@ -549,10 +556,10 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                       group-hover:opacity-100"
                     style={{
                       background:
-                        "background: radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 55%);",
+                        "radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.25), transparent 55%)",
                     }}
                   ></span>
-                </a>
+                </button>
                 <button
                   className="rounded-full border border-sky-300/30 bg-sky-500/10
                     px-5 py-3 text-sm font-semibold uppercase tracking-[0.22em]
@@ -620,14 +627,14 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                     Compare fleet{" "}
                   </Link>
 
-                  <Link
-                    href={`/contact`}
+                  <button
+                    onClick={() => openLiveChat(`Vehicle Detail - Ask Sizing - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                     className="rounded-full bg-emerald-400 px-4 py-2 text-xs
                       font-semibold uppercase tracking-[0.18em] text-slate-950
-                      hover:-translate-y-0.5"
+                      hover:-translate-y-0.5 cursor-pointer"
                   >
                     Ask sizing →
-                  </Link>
+                  </button>
                 </div>
               </div>
             </div>
@@ -725,12 +732,12 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
 
                         <div className="mt-8">
                           <Button
-                            asChild
+                            onClick={() => openLiveChat(`Vehicle Detail - What's Included - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                             className="rounded-full bg-emerald-400 px-7 py-6
                               text-base font-semibold text-slate-950
-                              hover:bg-emerald-300"
+                              hover:bg-emerald-300 cursor-pointer"
                           >
-                            <Link href="/contact">Start my quote</Link>
+                            Start my quote
                           </Button>
                         </div>
                       </div>
@@ -842,14 +849,14 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                   </div>
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
-                  <a
+                  <button
+                    onClick={() => openLiveChat(`Vehicle Detail - Quick Reality Check - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                     className="rounded-full bg-emerald-400 px-4 py-2 text-xs
                       font-semibold uppercase tracking-[0.2em] text-slate-950
-                      hover:-translate-y-0.5"
-                    href="/contact"
+                      hover:-translate-y-0.5 cursor-pointer"
                   >
                     Start my quote →
-                  </a>
+                  </button>
                   <a
                     className="rounded-full border border-white/20 bg-white/5
                       px-4 py-2 text-xs font-semibold uppercase tracking-[0.2em]
@@ -954,14 +961,14 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
               </li>
             </ol>
             <div className="mt-5 grid gap-3">
-              <a
+              <button
+                onClick={() => openLiveChat(`Vehicle Detail - Fast Booking - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                 className="rounded-2xl bg-emerald-400 px-5 py-3 text-center
                   text-sm font-semibold uppercase tracking-[0.22em]
-                  text-slate-950 shadow-lg hover:-translate-y-0.5"
-                href="/contact"
+                  text-slate-950 shadow-lg hover:-translate-y-0.5 cursor-pointer"
               >
                 Start my quote
-              </a>
+              </button>
               <a
                 className="rounded-2xl border border-white/15 bg-white/5 px-5
                   py-3 text-center text-sm font-semibold uppercase
@@ -1176,11 +1183,11 @@ function CommonBookingModalCard({
 
             <div className="mt-8">
               <Button
-                asChild
+                onClick={() => openLiveChat(`Vehicle Detail - Common Booking - ${vehicle.name}`, `/vehicles/${vehicle.slug}`)}
                 className="rounded-full bg-emerald-400 px-7 py-6 text-base
-                  font-semibold text-slate-950 hover:bg-emerald-300"
+                  font-semibold text-slate-950 hover:bg-emerald-300 cursor-pointer"
               >
-                <Link href="/contact">Start my quote</Link>
+                Start my quote
               </Button>
             </div>
           </div>

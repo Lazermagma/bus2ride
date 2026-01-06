@@ -216,48 +216,89 @@ export function LocationsDirectoryClient({ locations }: LocationsDirectoryClient
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {filteredLocations.map((loc) => (
-            <div
-              key={loc.state_slug}
-              className="group relative rounded-2xl border border-white/10 bg-gradient-to-br from-[#0b1d3c] via-[#0a1730] to-[#050b18] p-5 transition hover:-translate-y-1 hover:shadow-xl hover:border-teal-500/30"
-            >
-              <div className="flex items-center justify-between mb-3">
+          {filteredLocations.map((loc, idx) => {
+            const region = REGION_CATEGORIES.find(r => r.states.includes(loc.state_slug)) || REGION_CATEGORIES[0];
+            const colors = [
+              { border: "border-blue-500/40", bg: "from-blue-600/30 to-cyan-600/30", hover: "hover:border-blue-400/60", icon: "text-blue-400" },
+              { border: "border-purple-500/40", bg: "from-purple-600/30 to-pink-600/30", hover: "hover:border-purple-400/60", icon: "text-purple-400" },
+              { border: "border-emerald-500/40", bg: "from-emerald-600/30 to-teal-600/30", hover: "hover:border-emerald-400/60", icon: "text-emerald-400" },
+              { border: "border-orange-500/40", bg: "from-orange-600/30 to-red-600/30", hover: "hover:border-orange-400/60", icon: "text-orange-400" },
+              { border: "border-pink-500/40", bg: "from-pink-600/30 to-rose-600/30", hover: "hover:border-pink-400/60", icon: "text-pink-400" },
+              { border: "border-cyan-500/40", bg: "from-cyan-600/30 to-blue-600/30", hover: "hover:border-cyan-400/60", icon: "text-cyan-400" },
+            ];
+            const colorScheme = colors[idx % colors.length];
+            
+            return (
+              <div
+                key={loc.state_slug}
+                className={`group relative rounded-2xl border ${colorScheme.border} bg-gradient-to-br ${colorScheme.bg} p-5 transition-all hover:-translate-y-1 hover:shadow-2xl ${colorScheme.hover} backdrop-blur-sm`}
+              >
+                <div className="flex items-center justify-between mb-3">
+                  <Link
+                    href={`/locations/${loc.state_slug}`}
+                    className={cn(
+                      "flex items-center gap-2 text-lg font-bold text-white transition-colors",
+                      colorScheme.icon === "text-blue-400" && "hover:text-blue-400",
+                      colorScheme.icon === "text-purple-400" && "hover:text-purple-400",
+                      colorScheme.icon === "text-emerald-400" && "hover:text-emerald-400",
+                      colorScheme.icon === "text-orange-400" && "hover:text-orange-400",
+                      colorScheme.icon === "text-pink-400" && "hover:text-pink-400",
+                      colorScheme.icon === "text-cyan-400" && "hover:text-cyan-400"
+                    )}
+                  >
+                    <MapPin className={`w-5 h-5 ${colorScheme.icon}`} />
+                    {loc.state}
+                  </Link>
+                  <span className="px-2.5 py-1 rounded-full bg-white/20 backdrop-blur text-xs font-bold text-white shadow-lg">
+                    {loc.cities.length}
+                  </span>
+                </div>
+
+                <div 
+                  className={cn(
+                    "flex flex-wrap gap-2 mb-4",
+                    loc.cities.length > 12 && "max-h-24 overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-white/10 scrollbar-track-transparent"
+                  )}
+                  style={loc.cities.length > 12 ? { scrollbarWidth: "thin" } : undefined}
+                >
+                  {loc.cities.map((city) => (
+                    <Link
+                      key={city.slug}
+                      href={`/locations/${loc.state_slug}/party-buses-${city.slug}`}
+                      className={cn(
+                        "text-xs px-2 py-1 rounded-lg text-white/70 hover:text-white transition-all border border-transparent hover:border-white/20",
+                        colorScheme.icon === "text-blue-400" && "hover:text-blue-300",
+                        colorScheme.icon === "text-purple-400" && "hover:text-purple-300",
+                        colorScheme.icon === "text-emerald-400" && "hover:text-emerald-300",
+                        colorScheme.icon === "text-orange-400" && "hover:text-orange-300",
+                        colorScheme.icon === "text-pink-400" && "hover:text-pink-300",
+                        colorScheme.icon === "text-cyan-400" && "hover:text-cyan-300"
+                      )}
+                    >
+                      {city.name}
+                    </Link>
+                  ))}
+                </div>
+
                 <Link
                   href={`/locations/${loc.state_slug}`}
-                  className="flex items-center gap-2 text-lg font-bold text-white hover:text-teal-300 transition-colors"
+                  className={cn(
+                    "inline-flex w-full items-center justify-center gap-2 rounded-full border-2 bg-white/10 backdrop-blur px-4 py-2.5 text-sm font-bold text-white hover:bg-white/20 transition-all shadow-lg",
+                    colorScheme.border,
+                    colorScheme.border.includes("blue") && "hover:border-blue-400/60",
+                    colorScheme.border.includes("purple") && "hover:border-purple-400/60",
+                    colorScheme.border.includes("emerald") && "hover:border-emerald-400/60",
+                    colorScheme.border.includes("orange") && "hover:border-orange-400/60",
+                    colorScheme.border.includes("pink") && "hover:border-pink-400/60",
+                    colorScheme.border.includes("cyan") && "hover:border-cyan-400/60"
+                  )}
                 >
-                  <MapPin className="w-4 h-4 text-teal-400" />
-                  {loc.state}
+                  View {loc.state}
+                  <span aria-hidden="true" className="text-lg">→</span>
                 </Link>
-                <span className="px-2 py-1 rounded-full bg-white/10 text-xs font-medium text-white/70">
-                  {loc.cities.length} {loc.cities.length === 1 ? "city" : "cities"}
-                </span>
               </div>
-
-              <div className={cn(
-                "flex flex-wrap gap-1.5 mb-4",
-                loc.cities.length > 12 && "max-h-24 overflow-y-auto pr-1 scrollbar-thin"
-              )}>
-                {loc.cities.map((city) => (
-                  <Link
-                    key={city.slug}
-                    href={`/locations/${loc.state_slug}/party-buses-${city.slug}`}
-                    className="text-xs text-white/60 hover:text-teal-300 hover:underline underline-offset-2 transition-colors"
-                  >
-                    {city.name}
-                  </Link>
-                ))}
-              </div>
-
-              <Link
-                href={`/locations/${loc.state_slug}`}
-                className="inline-flex w-full items-center justify-center gap-2 rounded-full border border-white/20 px-4 py-2 text-xs font-semibold text-white/80 hover:bg-white/10 hover:text-white transition-all"
-              >
-                View {loc.state}
-                <span aria-hidden="true">→</span>
-              </Link>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {filteredLocations.length === 0 && (

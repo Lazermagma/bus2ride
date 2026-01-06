@@ -218,9 +218,20 @@ export default async function ToolsPage() {
 
       <SectionDivider variant="gradient" />
 
-      <FleetSection />
+      <FactsShowcase
+        facts={[
+          { id: "1", stat: "2.4M+", label: "Votes Cast", description: "Real opinions from riders nationwide", icon: "trending", category: "stat" },
+          { id: "2", stat: "89%", label: "Prefer LED Lighting", description: "The most-requested party bus feature", icon: "zap", category: "insight" },
+          { id: "3", stat: "6 Weeks", label: "Ideal Booking Lead", description: "Sweet spot for availability and pricing", icon: "clock", category: "tip" },
+          { id: "4", stat: "18-22", label: "Optimal Group Size", description: "Best energy without overcrowding", icon: "users", category: "insight" },
+          { id: "5", stat: "$45-65", label: "Per Person Average", description: "Typical cost when splitting 4-hour rental", icon: "star", category: "stat" },
+          { id: "6", stat: "Saturday 7PM", label: "Peak Booking Time", description: "Most popular departure for events", icon: "clock", category: "tip" },
+        ]}
+        title="Poll Insights at a Glance"
+        subtitle="Key statistics from our community voting data"
+      />
 
-      <SectionDivider variant="dots" />
+      <SectionDivider variant="glow" />
 
       <TriviaBookingSection
         triviaItems={TOOLS_TRIVIA}
@@ -229,7 +240,7 @@ export default async function ToolsPage() {
         bookingTitle="How to Book with Bus2Ride"
       />
 
-      <PremiumDivider />
+      <SectionDivider variant="gradient" />
 
       <ContentExpansion
         blocks={CONTENT_BLOCKS}
@@ -238,6 +249,10 @@ export default async function ToolsPage() {
         readTime="15 min"
         wordCount={2500}
       />
+
+      <PremiumDivider />
+
+      <FleetSection />
 
       <SectionDivider variant="glow" />
 

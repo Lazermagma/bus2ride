@@ -220,6 +220,10 @@ export function FaqGridClient({ faqs }: FaqGridClientProps) {
               {mostClickedThisWeek.map((faq) => (
                 <FaqCard key={faq.id} faq={faq} />
               ))}
+              {/* Fill empty grid slots to prevent layout issues */}
+              {mostClickedThisWeek.length < 6 && Array.from({ length: 6 - mostClickedThisWeek.length }).map((_, idx) => (
+                <div key={`placeholder-${idx}`} className="hidden lg:block" />
+              ))}
             </div>
           </div>
         )}
@@ -257,7 +261,7 @@ export function FaqGridClient({ faqs }: FaqGridClientProps) {
               variant="outline"
               size="lg"
               onClick={() => setShowAll(!showAll)}
-              className="rounded-full border-white/20 text-white hover:bg-white/10"
+              className="rounded-full border-indigo-500/30 bg-indigo-500/10 text-indigo-300 hover:bg-indigo-500/20 hover:text-white hover:border-indigo-500/50"
             >
               {showAll ? (
                 <>

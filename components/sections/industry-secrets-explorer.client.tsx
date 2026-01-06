@@ -365,14 +365,13 @@ export function IndustrySecretsExplorer({
               {query && ` matching "${query}"`}
             </p>
             <Button
-              variant="ghost"
               size="sm"
               onClick={() => {
                 setQuery("");
                 setSelected([]);
                 setVisibleCount(12);
               }}
-              className="text-red-300 hover:text-white"
+              className="bg-red-500/10 border border-red-500/30 text-red-300 hover:bg-red-500/20 hover:text-white hover:border-red-500/50"
             >
               Clear filters
             </Button>
@@ -462,19 +461,17 @@ export function IndustrySecretsExplorer({
         {hasMore && (
           <div className="text-center mt-10 flex flex-wrap justify-center gap-4">
             <Button
-              variant="outline"
               size="lg"
               onClick={() => setVisibleCount((prev) => prev + 12)}
-              className="rounded-full border-white/20 text-white hover:bg-white/10 px-8"
+              className="rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 px-8 font-semibold"
             >
               <ChevronDown className="w-4 h-4 mr-2" />
               Show More
             </Button>
             <Button
-              variant="outline"
               size="lg"
               onClick={() => setShowAll(true)}
-              className="rounded-full border-red-500/30 text-red-300 hover:bg-red-500/10 px-8"
+              className="rounded-full border-2 border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 hover:border-red-500/60 px-8 font-semibold"
             >
               Show All {filtered.length} Secrets
             </Button>
@@ -485,12 +482,11 @@ export function IndustrySecretsExplorer({
           <div className="text-center py-12">
             <p className="text-white/50 text-lg">No secrets found matching your search</p>
             <Button
-              variant="outline"
               onClick={() => {
                 setQuery("");
                 setSelected([]);
               }}
-              className="mt-4 rounded-full border-white/20 text-white hover:bg-white/10"
+              className="mt-4 rounded-full border-2 border-white/20 bg-white/5 text-white hover:bg-white/10 hover:border-white/30 font-semibold"
             >
               Browse all secrets
             </Button>

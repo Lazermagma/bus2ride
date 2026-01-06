@@ -3,9 +3,9 @@ import Image from "next/image";
 import Link from "next/link";
 import { getRandomVehicleByType } from "@/lib/data/vehicles";
 import { getRandomImage } from "@/lib/helpers/storage";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { pageMetadata } from "@/lib/seo/metadata";
-import { TriviaCarousel, type TriviaItem } from "@/components/sections/trivia-carousel";
+import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
 import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
 import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
@@ -333,9 +333,10 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 ];
 
 export default async function FleetPage() {
-  const [vehicles, reviews] = await Promise.all([
+  const [vehicles, reviews, totalReviewsCount] = await Promise.all([
     Promise.all(FLEET_CARDS.map((card) => getRandomVehicleByType(card.type))),
     getReviews(),
+    getReviewsCount(),
   ]);
 
   const cardsWithImages = FLEET_CARDS.map((card, idx) => {
@@ -455,10 +456,11 @@ export default async function FleetPage() {
 
       <SectionDivider variant="gradient" />
 
-      <TriviaCarousel
-        items={FLEET_TRIVIA}
-        title="Party Transportation Trivia"
-        subtitle="Test your knowledge with these surprising facts about limousines and party buses"
+      <TriviaBookingSection
+        triviaItems={FLEET_TRIVIA}
+        title="Party Transportation Trivia & How to Book"
+        subtitle="Test your knowledge and learn our simple booking process"
+        bookingTitle="How to Book Your Perfect Vehicle"
       />
 
       <SectionDivider variant="dots" />
@@ -473,7 +475,7 @@ export default async function FleetPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews ?? []} />
+      <ReviewsSection reviews={reviews ?? []} totalCount={totalReviewsCount ?? 0} />
 
       <SectionDivider variant="glow" />
 

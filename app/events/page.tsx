@@ -4,14 +4,13 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { FaqSearchSection } from "@/components/sections/faq-search-section";
 import { getEvents } from "@/lib/data/events";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { EventsGridClient } from "@/components/sections/events-grid.client";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
 import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
 import { SectionDivider, PremiumDivider } from "@/components/layout/section-dividers";
-import { BookingProcessSection } from "@/components/sections/content-booking";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Sparkles } from "lucide-react";
 
@@ -106,6 +105,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 export default async function EventsPage() {
   const events = (await getEvents()) ?? [];
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -154,7 +154,7 @@ export default async function EventsPage() {
 
       <SectionDivider variant="dots" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <PremiumDivider />
 
@@ -165,10 +165,6 @@ export default async function EventsPage() {
       />
 
       <SectionDivider variant="glow" />
-
-      <BookingProcessSection />
-
-      <PremiumDivider />
 
       <FleetSection />
 

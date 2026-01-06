@@ -291,7 +291,7 @@ export const getRandomVehiclesImages = cache(
         continue;
       }
 
-      if (!vehiclesImages) {
+      if (!vehiclesImages || vehiclesImages.length === 0) {
         console.warn(
           "getRandomVehiclesImages:",
           "No images found in folder",
@@ -301,11 +301,21 @@ export const getRandomVehiclesImages = cache(
       }
 
       const randomIndex = Math.floor(Math.random() * vehiclesImages.length);
+      const selectedImage = vehiclesImages[randomIndex];
+
+      if (!selectedImage || !selectedImage.name) {
+        console.warn(
+          "getRandomVehiclesImages:",
+          "Invalid image in folder",
+          folder.name,
+        );
+        continue;
+      }
 
       randomVehiclesImagesUrls.push(
         toPublicStorageUrl(
           bucket,
-          `${folder.name}/${vehiclesImages[randomIndex].name}`,
+          `${folder.name}/${selectedImage.name}`,
         ),
       );
     }

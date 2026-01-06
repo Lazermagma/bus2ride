@@ -7,7 +7,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { getVehiclesByType } from "@/lib/data/vehicles";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { BookingProcessSection } from "@/components/sections/content-booking";
 import { FaqSearchSection } from "@/components/sections/faq-search-section";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -306,11 +306,12 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 async function getPageData() {
   const vehicles = (await getVehiclesByType("party-bus", "min_hours", 10)) ?? [];
   const reviews = (await getReviews()) ?? [];
-  return { vehicles, reviews };
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
+  return { vehicles, reviews, totalReviewsCount };
 }
 
 export default async function PartyBusPage() {
-  const { vehicles, reviews } = await getPageData();
+  const { vehicles, reviews, totalReviewsCount } = await getPageData();
 
   return (
     <main className="bg-[#0a1628]">
@@ -320,6 +321,29 @@ export default async function PartyBusPage() {
         title="Party Bus Fleet" 
         vehicles={vehicles} 
       />
+
+      <ContentExpansion
+        blocks={CONTENT_BLOCKS}
+        title="The Ultimate Party Bus Guide"
+        subtitle="Everything you need to know about renting and enjoying a party bus"
+        readTime="15 min"
+        wordCount={2500}
+      />
+
+      <SectionDivider variant="glow" />
+
+      <TriviaBookingSection
+        triviaItems={PARTY_BUS_TRIVIA}
+        title="Party Bus Trivia & How to Book"
+        subtitle="Test your knowledge and learn our simple booking process"
+        bookingTitle="How to Book a Party Bus"
+      />
+
+      <SectionDivider variant="dots" />
+
+      <OtherFleets currentType="party-bus" />
+
+      <PremiumDivider />
 
       <SpecsPanel
         specs={PARTY_BUS_SPECS}
@@ -358,32 +382,9 @@ export default async function PartyBusPage() {
         subtitle="Interesting statistics about the party bus industry"
       />
 
-      <SectionDivider variant="dots" />
-
-      <OtherFleets currentType="party-bus" />
-
-      <PremiumDivider />
-
-      <ContentExpansion
-        blocks={CONTENT_BLOCKS}
-        title="The Ultimate Party Bus Guide"
-        subtitle="Everything you need to know about renting and enjoying a party bus"
-        readTime="15 min"
-        wordCount={2500}
-      />
-
-      <SectionDivider variant="glow" />
-
-      <TriviaBookingSection
-        triviaItems={PARTY_BUS_TRIVIA}
-        title="Party Bus Trivia & How to Book"
-        subtitle="Test your knowledge and learn our simple booking process"
-        bookingTitle="How to Book a Party Bus"
-      />
-
       <SectionDivider variant="gradient" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <GlobalCTAs source="Party Buses - After Reviews" />
 

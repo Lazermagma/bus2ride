@@ -230,7 +230,7 @@ function BookingStepModal({
           <Button
             variant="outline"
             onClick={onClose}
-            className="rounded-full border-white/20 text-white hover:bg-white/10"
+            className="rounded-full border-white/20 text-black hover:bg-white/10"
           >
             Close
           </Button>
@@ -294,15 +294,21 @@ export function TriviaBookingSection({
               <h3 className="text-xl font-bold text-white">Transportation Trivia</h3>
             </div>
 
-            <div className="relative">
-              {triviaItems.map((item, idx) => (
-                <TriviaCard
-                  key={item.id}
-                  item={item}
-                  isActive={idx === currentIndex}
-                />
-              ))}
+            <div className="relative overflow-hidden">
+              <div
+                className="flex gap-4 transition-transform duration-500"
+                style={{
+                  transform: `translateX(-${currentIndex * 100}%)`,
+                }}
+              >
+                {triviaItems.map((item) => (
+                  <div key={item.id} className="flex-shrink-0 w-full">
+                    <TriviaCard item={item} isActive={true} />
+                  </div>
+                ))}
+              </div>
             </div>
+
 
             <div className="flex items-center justify-center gap-4 mt-6">
               <button
@@ -386,7 +392,7 @@ export function TriviaBookingSection({
               <Button
                 asChild
                 variant="outline"
-                className="flex-1 rounded-full border-white/20 text-white hover:bg-white/10 transition-all"
+                className="flex-1 rounded-full border-white/20 text-black hover:bg-white/10 transition-all"
               >
                 <a href="tel:8885352566">
                   <Phone className="w-4 h-4 mr-2" />

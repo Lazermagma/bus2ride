@@ -189,6 +189,28 @@ export const getReviews = async (limit = 9) => {
   return getCachedReviews();
 };
 
+export const getReviewsCount = async () => {
+  const getCachedCount = unstable_cache(
+    async () => {
+      const supabase = await createClient();
+      
+      const { count, error } = await supabase
+        .from("reviews")
+        .select("*", { count: "exact", head: true });
+
+      if (error) {
+        console.error("getReviewsCount:", error);
+        return null;
+      }
+
+      return count ?? 0;
+    },
+    ["reviews-count"],
+    { revalidate: 300, tags: ["reviews"] }
+  );
+  return getCachedCount();
+};
+
 export type ReviewsData = NonNullable<
   Awaited<ReturnType<typeof getReviews>>
 >[number];

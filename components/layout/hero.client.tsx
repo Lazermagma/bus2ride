@@ -16,7 +16,8 @@ import { clampDarkenIntensity } from "@/lib/helpers/hero.helpers";
 import { HeroData } from "@/types/hero.types";
 import { ChevronDown, Sparkles, Music, Users, Star, Shield, Clock, Phone, CheckCircle2, Award, HeartHandshake } from "lucide-react";
 import { InstantQuoteButton } from "@/components/InstantQuoteButton";
-import { openLiveChat } from "@/lib/livechat";
+import { openLiveChat, openGetQuoteModal } from "@/lib/livechat";
+import ClientOnly from "@/components/ClientOnly";
 
 const HERO_BADGES: Record<string, { text: string; icon: "sparkles" | "music" | "users" }> = {
   home: { text: "Premium Fleet Rentals", icon: "sparkles" },
@@ -212,7 +213,7 @@ export function HeroClient({ hero, slideImageUrls }: HeroHeaderProps) {
                   <Button
                     key={cta.href}
                     size="lg"
-                    onClick={() => openLiveChat("Hero CTA", typeof window !== "undefined" ? window.location.pathname : "/")}
+                    onClick={() => openGetQuoteModal("Hero CTA - Get Quote")}
                     className={cn(
                       "rounded-full px-8 py-6 text-base font-bold transition-all duration-300",
                       "hover:-translate-y-1 hover:shadow-2xl cursor-pointer",
@@ -327,15 +328,19 @@ export function HeroClient({ hero, slideImageUrls }: HeroHeaderProps) {
               ))}
             </div>
             <div className="mt-6 flex gap-3">
-              <InstantQuoteButton 
+              <InstantQuoteButton
                 source={`Hero Modal - ${modal.label}`}
                 className="flex-1 rounded-full"
               />
-              <Button asChild variant="outline" className="flex-1 border-white/20 text-white hover:bg-white/10 rounded-full">
-                <Link href="tel:8885352566">
+
+
+              <Button asChild variant="outline" className="flex-1   rounded-full">
+                <Link href="tel:8885352566" >
                   Call Now
                 </Link>
               </Button>
+
+
             </div>
           </DialogContent>
         </Dialog>

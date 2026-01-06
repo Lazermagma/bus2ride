@@ -6,7 +6,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { VehicleData } from "@/lib/data/vehicles";
 import { toPublicStorageUrl } from "@/lib/helpers/storage";
-import { ArrowRight, Sparkles, Users, Phone, Mail, ChevronRight } from "lucide-react";
+import { ArrowRight, Sparkles, Users, Phone, Mail, ChevronRight, Info } from "lucide-react";
 import { Button } from "../ui/button";
 import { InstantQuoteButton } from "../InstantQuoteButton";
 
@@ -140,12 +140,30 @@ function RotatingVehicleCard({
   const vehicleType = vehicle.type || "party-bus";
   const typeGradient = getVehicleGradient(vehicleType);
   const vehicleLabel = getVehicleLabel(vehicleType);
+  // const normalize = (val?: string | null) =>
+  //   val?.toLowerCase().trim() ?? "";
 
   const getAmenityLink = () => {
     if (vehicleType.includes("limo")) return "/limousines";
     if (vehicleType.includes("coach")) return "/coach-buses";
     return "/party-buses";
   };
+
+
+
+  function getVehicleTypeLink(type?: string | null) {
+    if (!type) return "/fleet";
+
+    if (type.includes("limo")) return "/limousines";
+    if (type.includes("coach")) return "/coach-buses";
+    if (type.includes("sprinter")) return "/sprinter-vans";
+    if (type.includes("suv")) return "/suvs";
+    if (type.includes("sedan")) return "/sedans";
+    if (type.includes("party")) return "/party-buses";
+
+    return "/fleet";
+  }
+
 
   return (
     <div
@@ -164,7 +182,7 @@ function RotatingVehicleCard({
       <div className="relative aspect-[16/10] w-full overflow-hidden">
         <Image
           src={activeImage}
-          alt={vehicle.name}
+          alt={vehicle.name || "Vehicle"}
           fill
           sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
           quality={85}
@@ -198,7 +216,7 @@ function RotatingVehicleCard({
 
         <div className="absolute bottom-0 left-0 right-0 p-4 z-10">
           <h3 className="text-xl font-bold text-white mb-1 drop-shadow-lg">
-            {vehicle.name}
+            {vehicle.name || "Vehicle"}
           </h3>
           <div className="flex flex-wrap gap-1.5">
             {features.slice(0, 3).map((tag, i) => (
@@ -263,42 +281,70 @@ function RotatingVehicleCard({
         </div>
       )}
 
-      {!hideButtons && (
-        <div className="p-4 pt-3 space-y-2">
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
-                hover:bg-white hover:text-slate-900 transition-all"
-              asChild
-            >
-              <a href="tel:8885352566">
-                <Phone className="w-3 h-3 mr-1.5" />
-                Call
-              </a>
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
-                hover:bg-white hover:text-slate-900 transition-all"
-              asChild
-            >
-              <a href="mailto:info@bus2ride.com">
-                <Mail className="w-3 h-3 mr-1.5" />
-                Email
-              </a>
-            </Button>
-          </div>
-          <InstantQuoteButton 
-            source={`Homepage - ${vehicle.name}`} 
-            size="sm"
-            variant="pulse"
-            className="w-full rounded-lg text-xs"
-          />
+      <div className="flex flex-col">
+        <div className="w-full px-4 mt-2">
+          <Link
+            href={vehicle.slug ? `/vehicles/${vehicle.slug}` : getVehicleTypeLink(vehicle.type)}
+            className={cn(
+              "group relative flex items-center justify-center gap-2 w-full py-3 rounded-xl",
+              "font-semibold text-white transition-all duration-300 overflow-hidden",
+              "bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500",
+              "hover:from-pink-600 hover:via-purple-600 hover:to-blue-600",
+              "hover:scale-[1.02] hover:shadow-lg hover:shadow-pink-500/50",
+              "active:scale-[0.98]"
+            )}
+          >
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+            <Info className="w-4 h-4 relative z-10" />
+            <span className="relative z-10">Learn More</span>
+            <ArrowRight className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform" />
+          </Link>
         </div>
-      )}
+
+
+
+        {!hideButtons && (
+          <div className="p-4 pt-3 space-y-2">
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
+            hover:bg-white hover:text-slate-900 transition-all"
+                asChild
+              >
+                <a href="tel:8885352566">
+                  <Phone className="w-3 h-3 mr-1.5" />
+                  Call
+                </a>
+              </Button>
+
+              <Button
+                variant="outline"
+                size="sm"
+                className="flex-1 rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold
+            hover:bg-white hover:text-slate-900 transition-all"
+                asChild
+              >
+                <a href="mailto:info@bus2ride.com">
+                  <Mail className="w-3 h-3 mr-1.5" />
+                  Email
+                </a>
+              </Button>
+            </div>
+
+            <InstantQuoteButton
+              source={`Homepage - ${vehicle.name}`}
+              size="sm"
+              variant="pulse"
+              className="w-full rounded-lg text-xs"
+            />
+          </div>
+        )}
+
+      </div>
+
+
     </div>
   );
 }
@@ -318,10 +364,33 @@ export function FleetPreviewRotating({
   const [displayedVehicles, setDisplayedVehicles] = useState<VehicleData[]>(
     () => vehicles.slice(0, vehiclesPerRow)
   );
+  const normalize = (val?: string | null) =>
+    val?.toLowerCase().trim() ?? "";
+
   const [animationKeys, setAnimationKeys] = useState<number[]>(
     () => Array(vehiclesPerRow).fill(0)
   );
   const [isClient, setIsClient] = useState(false);
+  const derivedVehicleType =
+    vehicles.length > 0 && vehicles[0].type
+      ? vehicles[0].type
+      : null;
+  const totalVehiclesOfType = useMemo(() => {
+    if (!derivedVehicleType) return vehicles.length;
+
+    return vehicles.filter(
+      (v) => normalize(v.type) === normalize(derivedVehicleType)
+    ).length;
+  }, [vehicles, derivedVehicleType]);
+
+  const remainingCount = Math.max(
+    totalVehiclesOfType - vehiclesPerRow,
+    0
+  );
+
+  const vehicleTypeLabel = derivedVehicleType
+    ? getVehicleLabel(derivedVehicleType)
+    : "Vehicles";
 
   useEffect(() => {
     setIsClient(true);
@@ -387,12 +456,15 @@ export function FleetPreviewRotating({
             {showNavigation && viewAllLink && (
               <Link
                 href={viewAllLink}
-                className="group inline-flex items-center gap-2 text-sm font-medium text-blue-300 hover:text-white transition-colors"
+                className="group inline-flex items-center gap-2 text-lg  font-bold  text-blue-300 hover:text-white transition-colors"
               >
-                <span>View all</span>
+    <span>
+       View {vehicles.length} other {vehicleTypeLabel}
+    </span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
             )}
+
           </div>
         )}
 

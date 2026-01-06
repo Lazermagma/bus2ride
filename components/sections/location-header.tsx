@@ -81,38 +81,37 @@ export default function LocationHeader({
             </p>
           </div>
           <div
-            className="mt-10 flex flex-col gap-4 sm:flex-row sm:flex-wrap
-              sm:justify-center"
+            className="mt-10 flex flex-row flex-wrap gap-4 justify-center items-center"
           >
-            <InstantQuoteButton 
-              source={`Location - ${stateName || cityName}`}
-              size="lg"
-              className="px-10 py-5 text-xl rounded-full shadow-[0_20px_40px_rgba(4,7,16,0.45)]"
-            />
+             <InstantQuoteButton 
+               source={`Location - ${stateName || cityName}`}
+               size="lg"
+               className="!px-10 !py-5 !text-xl !h-[60px] rounded-full shadow-[0_20px_40px_rgba(4,7,16,0.45)] min-w-[200px] flex-shrink-0"
+             />
             <a
               href="/fleet"
               className="inline-flex items-center justify-center rounded-full
-                bg-blue-600 px-10 py-5 text-xl font-semibold text-white
-                shadow-[0_20px_40px_rgba(5,88,255,0.45)] hover:-translate-y-0.5
-                hover:bg-blue-500 transition"
+                border border-white/30 bg-slate-900/80 px-10 py-5 text-xl font-semibold
+                text-white shadow-[0_20px_40px_rgba(3,9,23,0.5)]
+                hover:-translate-y-0.5 hover:bg-white/5 transition min-w-[200px] flex-shrink-0"
             >
               🚌 View Fleet
             </a>
             <a
               href="tel:8885352566"
               className="inline-flex items-center justify-center rounded-full
-                bg-slate-900/80 px-10 py-5 text-xl font-semibold text-white
-                shadow-[0_20px_40px_rgba(2,6,23,0.6)] hover:-translate-y-0.5
-                hover:bg-black transition"
+                border border-white/30 bg-slate-900/80 px-10 py-5 text-xl font-semibold
+                text-white shadow-[0_20px_40px_rgba(3,9,23,0.5)]
+                hover:-translate-y-0.5 hover:bg-white/5 transition min-w-[200px] flex-shrink-0"
             >
               📞 Call (888) 535-2566
             </a>
             <a
               href="mailto:info@bus2ride.com"
               className="inline-flex items-center justify-center rounded-full
-                border border-white/30 px-10 py-5 text-xl font-semibold
+                border border-white/30 bg-slate-900/80 px-10 py-5 text-xl font-semibold
                 text-white shadow-[0_20px_40px_rgba(3,9,23,0.5)]
-                hover:-translate-y-0.5 hover:bg-white/5 transition"
+                hover:-translate-y-0.5 hover:bg-white/5 transition min-w-[200px] flex-shrink-0"
             >
               ✉️ Email Us
             </a>

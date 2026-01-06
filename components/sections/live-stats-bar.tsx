@@ -231,7 +231,7 @@ function QuickPollModal({
           <Button
             onClick={onClose}
             variant="outline"
-            className="flex-1 rounded-full border-white/20 text-white hover:bg-white/10"
+            className="flex-1 rounded-full border-white/20 text-black hover:bg-white/10 bg-white"
           >
             Close
           </Button>

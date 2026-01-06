@@ -6,14 +6,16 @@ import { FaqSection } from "@/components/sections/faq-section";
 import { EventsGrid } from "@/components/sections/events-grid";
 import FleetSection from "@/components/sections/fleet-section";
 import { TriviaCarousel, type TriviaItem } from "@/components/sections/trivia-carousel";
+import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
+import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
 import { SectionDivider, PremiumDivider } from "@/components/layout/section-dividers";
 import { createClient } from "@/lib/supabase/server";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { pageMetadata } from "@/lib/seo/metadata";
 import { Flame } from "lucide-react";
-import { LiveStatsBar, DEFAULT_LIVE_STATS } from "@/components/sections/live-stats-bar";
+import { LiveStatsBar, DEFAULT_LIVE_STATS, type LiveStat } from "@/components/sections/live-stats-bar";
 import { PollFilterTabs } from "@/components/sections/poll-filter-tabs";
-import { getPollAnalytics, analyticsToLiveStats } from "@/lib/data/poll-analytics";
+import { getPollAnalytics, analyticsToLiveStats, getPollFactsFromSupabase } from "@/lib/data/poll-analytics";
 
 export const revalidate = 60;
 
@@ -59,6 +61,36 @@ const TRIVIA_ITEMS: TriviaItem[] = [
     answer: "15-20 passengers is ideal—large enough for great energy, small enough that everyone stays connected.",
     category: "Planning Tips",
     source: "Event Coordinator Survey",
+  },
+];
+
+// Facts will be fetched from Supabase
+
+const CONTENT_BLOCKS: ContentBlock[] = [
+  {
+    id: "understanding-results",
+    title: "Understanding Poll Results",
+    content: `Poll results are the culmination of thousands of community votes, providing real insights into what riders actually prefer. Unlike individual reviews that reflect one person's experience, poll results aggregate preferences across the entire Bus2Ride community, giving you statistically meaningful data to inform your transportation decisions.<br><br>Each result shows the percentage breakdown of votes, so you can see not just what won, but how close the competition was. Results with high consensus (70%+ for one option) indicate strong community agreement, while split results (45-55%) show areas where personal preference matters more than a universal "best" choice.<br><br>Results are updated in real-time as new votes come in, ensuring you're always seeing the most current community preferences. High-vote polls carry more statistical weight, while newer polls with fewer votes may shift as more community members participate.`,
+  },
+  {
+    id: "reading-results",
+    title: "How to Read Poll Results",
+    content: `Reading poll results effectively means understanding both the numbers and what they mean for your specific situation. Start by looking at the winning option and its percentage—this tells you what the majority of riders prefer. But don't stop there.<br><br>Pay attention to the distribution of votes across all options. If the top choice has 85% of votes, that's a strong consensus. If it has 35% with three other options each getting 20-25%, that indicates the community is divided, and your personal preference matters more.<br><br>Consider the total vote count too. A poll with 10,000 votes is more statistically reliable than one with 50 votes. High-vote polls represent broader community consensus, while lower-vote polls may reflect emerging trends or niche preferences.`,
+  },
+  {
+    id: "using-results",
+    title: "Using Results for Better Decisions",
+    content: `Poll results become most powerful when applied to your specific event and priorities. If you're planning a bachelorette party, look at party bus and event-specific results. Planning a corporate retreat? Focus on coach bus and corporate category results.<br><br>Use consensus results (70%+ agreement) as strong indicators of best practices. For example, if 85% of riders say they'd pay more for a newer vehicle, that's a clear signal that vehicle age should factor into your decision. Split results (45-55%) indicate areas where personal preference matters more than community consensus.<br><br>Don't just look at what won—pay attention to the losing options too. If 30% of riders prioritize price over amenities, and you're in that 30%, you know that budget-focused options will serve you well even if they're not the majority preference. Results should inform your decision, not dictate it.`,
+  },
+  {
+    id: "embedding-results",
+    title: "Embedding Results on Your Website",
+    content: `You can embed poll results on your own website to share community insights with your visitors. We provide embed codes for both live polls (where visitors can vote) and results-only displays (showing current vote counts and percentages).<br><br>Results embeds update automatically as new votes come in, so your website always shows current community preferences. This is perfect for event planning websites, transportation company sites, or any platform where community insights add value.<br><br>Each embed is responsive and styled to match your site's design. Simply copy the embed code and paste it into your website's HTML. The results will display with real-time vote counts and percentage breakdowns, giving your visitors access to the same community intelligence that helps Bus2Ride customers make better decisions.`,
+  },
+  {
+    id: "result-categories",
+    title: "Result Categories Explained",
+    content: `Our poll results are organized into intuitive categories that align with common transportation decisions. <strong>Party Bus results</strong> show preferences for nightlife, celebrations, and entertainment-focused rentals—think bachelorette parties, birthday celebrations, and concert shuttles. <strong>Limousine results</strong> address luxury transportation needs including weddings, proms, corporate events, and airport transfers.<br><br><strong>Coach Bus results</strong> cover group travel, corporate shuttles, school trips, and multi-day excursions where capacity and comfort take priority. <strong>Pricing results</strong> help you understand what others are paying and expecting, from hourly rates to tipping norms. <strong>Booking Experience results</strong> capture insights about the reservation process itself—preferred contact methods, contract expectations, and customer service priorities.<br><br>The <strong>Events category</strong> cuts across vehicle types to address specific occasions: weddings, proms, sporting events, concerts, and corporate functions. These results help you see how others approach transportation for events similar to yours.`,
   },
 ];
 
@@ -124,10 +156,12 @@ const categoryConfigs = [
 ];
 
 export default async function PollResultsPage() {
-  const [hotPolls, reviews, analytics] = await Promise.all([
+  const [hotPolls, reviews, analytics, totalReviewsCount, pollFacts] = await Promise.all([
     getHotPolls(),
     getReviews(),
     getPollAnalytics(),
+    getReviewsCount(),
+    getPollFactsFromSupabase(),
   ]);
   
   const liveStats = analyticsToLiveStats(analytics);
@@ -137,7 +171,7 @@ export default async function PollResultsPage() {
       <Hero slug="polls" />
 
       <LiveStatsBar 
-        stats={liveStats} 
+        stats={liveStats as LiveStat[]} 
         title="Live Results Activity"
       />
 
@@ -174,52 +208,23 @@ export default async function PollResultsPage() {
 
       <SectionDivider variant="glow" />
 
-      <ReviewsSection reviews={reviews ?? []} />
+      <ReviewsSection reviews={reviews ?? []} totalCount={totalReviewsCount ?? undefined} />
 
       <SectionDivider variant="gradient" />
 
-      <section className="py-16 bg-[#0a1628]">
-        <div className="container mx-auto px-4 md:px-6">
-          <div className="grid gap-8 lg:grid-cols-2">
-            <div>
-              <h2 className="text-2xl font-bold text-white mb-6">Transportation Trivia</h2>
-              <TriviaCarousel items={TRIVIA_ITEMS} />
-            </div>
-            <div className="space-y-6">
-              <h2 className="text-2xl font-bold text-white mb-6">How to Book</h2>
-              <div className="space-y-4">
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-blue-500/10 to-purple-500/10 border border-blue-500/20">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center text-white font-bold shrink-0">1</div>
-                    <div>
-                      <h3 className="text-white font-semibold mb-1">Browse Our Fleet</h3>
-                      <p className="text-white/70 text-sm">Explore party buses, limousines, and coach buses. Filter by capacity, features, and price.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-purple-500/10 to-pink-500/10 border border-purple-500/20">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold shrink-0">2</div>
-                    <div>
-                      <h3 className="text-white font-semibold mb-1">Get Your Quote</h3>
-                      <p className="text-white/70 text-sm">Tell us your date, time, and destination. We'll provide instant pricing with no hidden fees.</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="p-5 rounded-2xl bg-gradient-to-br from-pink-500/10 to-orange-500/10 border border-pink-500/20">
-                  <div className="flex items-start gap-4">
-                    <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-pink-500 to-orange-500 flex items-center justify-center text-white font-bold shrink-0">3</div>
-                    <div>
-                      <h3 className="text-white font-semibold mb-1">Confirm & Celebrate</h3>
-                      <p className="text-white/70 text-sm">Secure your booking with a small deposit. On event day, your ride arrives on time, every time.</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <FactsShowcase
+        facts={pollFacts}
+        title="Poll Insights at a Glance"
+        subtitle="Key statistics from our community voting data"
+      />
+
+      <SectionDivider variant="glow" />
+
+      <ContentExpansion
+        blocks={CONTENT_BLOCKS}
+        title="Understanding Poll Results"
+        subtitle="Everything you need to know about reading and using poll results"
+      />
 
       <SectionDivider variant="dots" />
 

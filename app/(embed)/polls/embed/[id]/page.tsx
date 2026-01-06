@@ -3,6 +3,7 @@ import { PollCard } from "@/components/sections/poll-card";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
+export const runtime = "edge";
 
 async function getPollById(id: string) {
   const supabase = await createClient();
@@ -55,21 +56,23 @@ export default async function EmbedPollPage({
           * { margin: 0; padding: 0; box-sizing: border-box; }
           body { 
             font-family: system-ui, -apple-system, sans-serif;
-            background: linear-gradient(135deg, #0a1628 0%, #0d1d3a 100%);
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 16px;
+            background: transparent;
+            margin: 0;
+            padding: 8px;
+            min-height: auto;
+            display: block;
+            overflow: hidden;
           }
           .card {
             background: linear-gradient(135deg, rgba(39, 54, 89, 0.9), rgba(15, 23, 42, 0.95));
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 16px;
             padding: 24px;
-            max-width: 400px;
+            max-width: 500px;
             width: 100%;
             color: white;
+            margin: 0 auto;
+            box-sizing: border-box;
           }
           .question { font-size: 18px; font-weight: 600; margin-bottom: 16px; line-height: 1.4; }
           .option {
@@ -82,30 +85,31 @@ export default async function EmbedPollPage({
             transition: all 0.2s;
           }
           .option:hover { background: rgba(255, 255, 255, 0.1); }
-          .footer { 
-            margin-top: 16px; 
-            padding-top: 12px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            text-align: center;
-          }
-          .footer a { 
-            color: rgba(255, 255, 255, 0.5); 
-            text-decoration: none; 
-            font-size: 12px;
-          }
-          .footer a:hover { color: white; }
         `}</style>
+        <script dangerouslySetInnerHTML={{
+          __html: `
+            (function() {
+              function sendHeight() {
+                if (window.parent !== window) {
+                  const height = document.documentElement.scrollHeight;
+                  window.parent.postMessage({ type: 'poll-embed-height', height: height }, '*');
+                }
+              }
+              sendHeight();
+              window.addEventListener('resize', sendHeight);
+              if (window.MutationObserver) {
+                new MutationObserver(sendHeight).observe(document.body, { childList: true, subtree: true });
+              }
+            })();
+          `
+        }} />
       </head>
       <body>
         <div className="card">
           <PollCard poll={poll} noLoadSpinner showEmbed={false} />
-          <div className="footer">
-            <a href="https://bus2ride.com/polls" target="_blank" rel="noopener noreferrer">
-              Powered by Bus2Ride
-            </a>
-          </div>
         </div>
       </body>
     </html>
   );
 }
+

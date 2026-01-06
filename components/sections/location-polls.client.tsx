@@ -1,8 +1,10 @@
 "use client";
 
+import * as React from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
 import { ChevronLeft, ChevronRight, Check, Copy, Code, BarChart3 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 type PollOption = {
   id: string;
@@ -131,8 +133,10 @@ function PollCard({
 export function LocationPollsClient({ polls, cityName }: LocationPollsClientProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
+  const [embedModalOpen, setEmbedModalOpen] = React.useState(false);
+  const [embedPoll, setEmbedPoll] = React.useState<{ id: string; question: string } | null>(null);
+  const [embedType, setEmbedType] = React.useState<"live" | "results">("live");
 
   const pollsPerPage = 3;
   const totalPages = Math.ceil(polls.length / pollsPerPage);
@@ -163,19 +167,21 @@ export function LocationPollsClient({ polls, cityName }: LocationPollsClientProp
   );
 
   const handleEmbedLive = (pollId: string) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const embedCode = `<iframe src="${origin}/polls/embed/${pollId}" width="100%" height="400" frameborder="0" style="border-radius: 16px;"></iframe>`;
-    navigator.clipboard.writeText(embedCode);
-    setCopiedId(`live-${pollId}`);
-    setTimeout(() => setCopiedId(null), 2000);
+    const poll = polls.find(p => p.id === pollId);
+    if (poll) {
+      setEmbedPoll({ id: poll.id, question: poll.question || "" });
+      setEmbedType("live");
+      setEmbedModalOpen(true);
+    }
   };
 
   const handleEmbedResults = (pollId: string) => {
-    const origin = typeof window !== "undefined" ? window.location.origin : "";
-    const embedCode = `<iframe src="${origin}/polls/results/embed/${pollId}" width="100%" height="400" frameborder="0" style="border-radius: 16px;"></iframe>`;
-    navigator.clipboard.writeText(embedCode);
-    setCopiedId(`results-${pollId}`);
-    setTimeout(() => setCopiedId(null), 2000);
+    const poll = polls.find(p => p.id === pollId);
+    if (poll) {
+      setEmbedPoll({ id: poll.id, question: poll.question || "" });
+      setEmbedType("results");
+      setEmbedModalOpen(true);
+    }
   };
 
   if (polls.length === 0) {
@@ -191,11 +197,16 @@ export function LocationPollsClient({ polls, cityName }: LocationPollsClientProp
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
     >
-      {copiedId && (
-        <div className="fixed bottom-6 right-6 z-50 px-4 py-3 rounded-xl bg-teal-500 text-white font-medium flex items-center gap-2 shadow-lg animate-fade-up">
-          <Copy className="w-4 h-4" />
-          Embed code copied!
-        </div>
+      {embedPoll && (
+        <PollEmbedModal
+          poll={embedPoll}
+          embedType={embedType}
+          isOpen={embedModalOpen}
+          onClose={() => {
+            setEmbedModalOpen(false);
+            setEmbedPoll(null);
+          }}
+        />
       )}
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 min-h-[280px]">

@@ -1,231 +1,269 @@
 "use client";
 
 import * as React from "react";
-import { Loader2, Code, Check, Copy } from "lucide-react";
-import { useInView } from "react-intersection-observer"; // 1. Import hook
+import { Loader2, Code, BarChart2, Sparkles, TrendingUp, Users } from "lucide-react";
+import { useInView } from "react-intersection-observer";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { createClient } from "@/lib/supabase/client";
 import type { PollWithOptions } from "@/lib/data/polls";
 import { cn } from "@/lib/utils";
+import { PollEmbedModal } from "./poll-embed-modal";
 
 interface PollCardProps {
   poll: PollWithOptions;
-  onAdvance?: () => void;
-  advanceDelayMs?: number;
   backgroundClassName?: string;
   noLoadSpinner?: boolean;
   showEmbed?: boolean;
   compact?: boolean;
 }
 
+const GRADIENT_CLASSES = [
+  "from-indigo-600 via-purple-600 to-pink-600",
+  "from-blue-600 via-cyan-600 to-teal-600",
+  "from-violet-600 via-fuchsia-600 to-rose-600",
+  "from-emerald-600 via-green-600 to-lime-600",
+  "from-orange-600 via-red-600 to-pink-600",
+  "from-amber-600 via-yellow-600 to-orange-600",
+];
+
 export function PollCard({
-  poll,
-  onAdvance,
-  advanceDelayMs = 5000,
-  backgroundClassName,
-  noLoadSpinner = false,
-  showEmbed = true,
-  compact = false,
-}: PollCardProps) {
+                           poll,
+                           backgroundClassName,
+                           noLoadSpinner = false,
+                           showEmbed = true,
+                           compact = false,
+                         }: PollCardProps) {
   const [hasVoted, setHasVoted] = React.useState(false);
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const [isAdvancing, setIsAdvancing] = React.useState(false);
-  const [embedCopied, setEmbedCopied] = React.useState(false);
+  const [embedModalOpen, setEmbedModalOpen] = React.useState(false);
+  const [embedType, setEmbedType] = React.useState<"live" | "results">("live");
+
   const options = poll.options ?? [];
 
-  // 2. Setup Intersection Observer
-  const { ref, inView } = useInView({
-    triggerOnce: true, // Only fire once per session
-    threshold: 0.2, // Trigger when 20% of the card is visible
+  /* -----------------------------------------
+     Stable background gradient
+  ----------------------------------------- */
+  const gradientClass = React.useMemo(() => {
+    const index =
+      poll.id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+      GRADIENT_CLASSES.length;
+    return GRADIENT_CLASSES[index];
+  }, [poll.id]);
+
+  /* -----------------------------------------
+     Intersection Observer
+  ----------------------------------------- */
+  const { ref, entry } = useInView({
+    threshold: [0, 0.25, 0.5, 0.75, 1],
   });
 
-  // 3. Trigger the View Counter
-  React.useEffect(() => {
-    if (inView) {
-      const logView = async () => {
-        const supabase = createClient();
-        const { error } = await supabase.rpc("increment_poll_view", {
-          p_poll_id: poll.id,
-        });
-        if (error) console.error("Error logging poll view:", error);
-      };
-      logView();
-    }
-  }, [inView, poll.id]);
+  const visibility = entry?.intersectionRatio ?? 0;
+  const opacity =
+    visibility >= 0.75 ? 1 : visibility >= 0.5 ? 0.7 : visibility >= 0.25 ? 0.4 : 0.2;
 
-  const handleCopyEmbed = async () => {
-    const embedCode = `<iframe src="${typeof window !== "undefined" ? window.location.origin : ""}/polls/embed/${poll.id}" width="100%" height="400" frameborder="0" style="border-radius: 16px; max-width: 400px;"></iframe>`;
-    try {
-      await navigator.clipboard.writeText(embedCode);
-      setEmbedCopied(true);
-      setTimeout(() => setEmbedCopied(false), 2000);
-    } catch (err) {
-      console.error("Failed to copy embed code:", err);
-    }
-  };
-
-  const advanceTimeoutRef = React.useRef<number | null>(null);
+  /* -----------------------------------------
+     View counter
+  ----------------------------------------- */
+  const hasLoggedViewRef = React.useRef(false);
 
   React.useEffect(() => {
-    return () => {
-      if (advanceTimeoutRef.current) {
-        window.clearTimeout(advanceTimeoutRef.current);
-      }
-    };
-  }, []);
+    if (visibility > 0.25 && !hasLoggedViewRef.current) {
+      hasLoggedViewRef.current = true;
+      createClient().rpc("increment_poll_view", { p_poll_id: poll.id });
+    }
+  }, [visibility, poll.id]);
 
-  const [votes, setVotes] = React.useState<Record<string, number>>(() => {
-    return options.reduce<Record<string, number>>((acc, opt) => {
+  /* -----------------------------------------
+     Votes
+  ----------------------------------------- */
+  const [votes, setVotes] = React.useState<Record<string, number>>(() =>
+    options.reduce((acc, opt) => {
       acc[opt.id] = Number(opt.vote_count ?? 0);
       return acc;
-    }, {});
-  });
+    }, {} as Record<string, number>)
+  );
 
-  // Calculate total votes for percentages
   const totalVotes = Object.values(votes).reduce((a, b) => a + b, 0);
 
+  /* -----------------------------------------
+     Voting
+  ----------------------------------------- */
   const handleVote = async (optionId: string) => {
-    if (hasVoted || isSubmitting || isAdvancing) return;
+    if (hasVoted || isSubmitting) return;
+
+    setHasVoted(true);
     setIsSubmitting(true);
 
-    // 1. Optimistic Update
     setVotes((prev) => ({
       ...prev,
       [optionId]: (prev[optionId] ?? 0) + 1,
     }));
-    setHasVoted(true);
 
-    // Auto-advance after a short delay so users can see results.
-    setIsAdvancing(true);
-    advanceTimeoutRef.current = window.setTimeout(() => {
-      setIsAdvancing(false);
-      onAdvance?.();
-    }, advanceDelayMs);
-
-    // 2. Submit to Supabase
-    const supabase = createClient();
-    const { error } = await supabase.rpc("increment_poll_vote1", {
+    const { error } = await createClient().rpc("increment_poll_vote1", {
       p_option_id: optionId,
     });
 
-    if (error) {
-      console.error("Vote failed:", error);
-    }
+    if (error) console.error("Vote failed:", error);
     setIsSubmitting(false);
   };
 
+  /* -----------------------------------------
+     Embed handlers
+  ----------------------------------------- */
+  const openEmbedModal = (type: "live" | "results") => {
+    setEmbedType(type);
+    setEmbedModalOpen(true);
+  };
+
+  /* -----------------------------------------
+     Render
+  ----------------------------------------- */
   return (
-    <Card
-      ref={ref} // 4. Attach the Ref here to track visibility
-      className={cn(
-        `h-full rounded-2xl border border-white/10 bg-white/5 gap-2 shadow-sm
-        flex flex-col bg-[#273659]`,
-        compact && "rounded-xl",
-        backgroundClassName,
-      )}
-    >
-      <CardHeader className={cn("pb-3", compact && "pb-2 px-3 pt-3")}>
-        <CardTitle
-          className={cn(
-            "text-lg leading-tight text-white",
-            compact && "text-sm",
-          )}
-        >
-          {poll.question}
-        </CardTitle>
-      </CardHeader>
-      <CardContent
+    <>
+      <Card
+        ref={ref}
+        style={{ opacity }}
         className={cn(
-          "flex-1 flex flex-col justify-between",
-          compact && "px-3 pb-3",
+          "transition-all duration-500 ease-out group",
+          "h-full rounded-3xl border-2 shadow-xl flex flex-col overflow-hidden",
+          "bg-gradient-to-br",
+          gradientClass,
+          compact && "rounded-xl",
+          backgroundClassName,
+          "hover:scale-[1.02] hover:shadow-2xl hover:border-white/40 hover:z-50 relative"
         )}
       >
-        <div className="flex flex-col gap-3 h-auto">
-          {options.map((option) => {
-            const count = votes[option.id] ?? Number(option.vote_count ?? 0);
-            const percent =
-              totalVotes > 0 ? Math.round((count / totalVotes) * 100) : 0;
-
-            return (
-              <div key={option.id} className="space-y-1.5 group">
-                {hasVoted ? (
-                  // RESULT VIEW
-                  <div className="animate-in fade-in duration-500">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span className="font-medium text-white">
-                        {option.label}
-                      </span>
-                      <span className="text-blue-100">{percent}%</span>
-                    </div>
-                    <Progress value={percent} className="h-2" />
-                    <p className="text-xs text-blue-100 text-right mt-0.5">
-                      {count} votes
-                    </p>
-                  </div>
-                ) : (
-                  // VOTING VIEW
-                  <Button
-                    variant="outline"
-                    className={cn(
-                      `w-full justify-between h-auto py-3 px-4 rounded-2xl
-                        font-normal transition-all text-left whitespace-normal
-                        border border-white/10 bg-white/5 hover:bg-white/10
-                        focus:outline-none focus:ring-2 focus:ring-white/30`,
-                      isSubmitting && "opacity-50 pointer-events-none",
-                    )}
-                    onClick={() => handleVote(option.id)}
-                    disabled={isSubmitting}
-                  >
-                    <span className="mr-2 text-white">{option.label}</span>
-                    {isSubmitting && (
-                      <Loader2 className="h-4 w-4 animate-spin ml-auto" />
-                    )}
-                  </Button>
-                )}
+        <div className="h-fit pb-8">
+        <CardHeader className={cn("relative pb-3 z-10", compact && "pb-2 px-3 pt-3")}>
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
+              <span className="text-xs font-semibold text-white/80 uppercase tracking-wider">Live Poll</span>
+            </div>
+            {totalVotes > 0 && (
+              <div className="flex items-center gap-1 text-xs text-white/70">
+                <Users className="w-3 h-3" />
+                <span>{totalVotes.toLocaleString()}</span>
               </div>
-            );
-          })}
+            )}
+          </div>
+          <CardTitle className={cn("text-lg text-white font-bold leading-tight drop-shadow-lg", compact && "text-sm")}>
+            {poll.question}
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent className={cn("relative flex flex-col z-10 h-fit", compact && "px-3 pb-3")}>
+          <div className={cn("flex flex-col", hasVoted ? "gap-2" : "gap-3")}>
+            {(() => {
+              // Sort options by vote count when results are shown
+              const sortedOptions = hasVoted 
+                ? [...options].sort((a, b) => {
+                    const aCount = votes[a.id] ?? 0;
+                    const bCount = votes[b.id] ?? 0;
+                    return bCount - aCount;
+                  })
+                : options;
+              
+              return sortedOptions.map((option, idx) => {
+                const count = votes[option.id] ?? 0;
+                const percent = totalVotes ? Math.round((count / totalVotes) * 100) : 0;
+                const isTop = hasVoted && idx === 0 && percent > 0;
+
+              return (
+                <div key={option.id} className={hasVoted ? "space-y-1" : "space-y-1.5"}>
+                  {hasVoted ? (
+                    <>
+                      <div className="flex justify-between items-center text-sm">
+                        <span className={cn(
+                          "text-white font-medium",
+                          isTop && "text-yellow-200 font-bold"
+                        )}>
+                          {option.label}
+                        </span>
+                        <div className="flex items-center gap-2">
+                          {isTop && <TrendingUp className="w-3.5 h-3.5 text-yellow-300" />}
+                          <span className={cn(
+                            "font-bold",
+                            isTop ? "text-yellow-200" : "text-white/90"
+                          )}>
+                            {percent}%
+                          </span>
+                        </div>
+                      </div>
+                      <div className="relative h-2 rounded-full bg-white/20 overflow-hidden">
+                        <div 
+                          className={cn(
+                            "h-full rounded-full transition-all duration-500",
+                            isTop 
+                              ? "bg-gradient-to-r from-yellow-400 to-amber-500 shadow-lg shadow-yellow-500/50"
+                              : "bg-gradient-to-r from-white/40 to-white/60"
+                          )}
+                          style={{ width: `${percent}%` }}
+                        />
+                      </div>
+                      <p className="text-xs text-white/50 text-right leading-tight">{count.toLocaleString()} votes</p>
+                    </>
+                  ) : (
+                    <Button
+                      variant="outline"
+                      disabled={isSubmitting}
+                      onClick={() => handleVote(option.id)}
+                      className={cn(
+                        "w-full py-3.5 rounded-xl border-2 transition-all duration-200",
+                        "bg-white/10 backdrop-blur-sm border-white/20",
+                        "hover:bg-white/20 hover:border-white/40 hover:scale-[1.02]",
+                        "text-white font-medium text-sm shadow-lg",
+                        isSubmitting && "opacity-50 cursor-not-allowed"
+                      )}
+                    >
+                      <span className="truncate">{option.label}</span>
+                      {isSubmitting && <Loader2 className="h-4 w-4 animate-spin ml-auto flex-shrink-0" />}
+                    </Button>
+                  )}
+                </div>
+              );
+            });
+            })()}
+          </div>
+
+          {/* EMBED BUTTONS */}
+          {showEmbed && !compact && (
+            <div className="pb-10 pt-1 border-t h-fit border-white/20 space-y-2  flex-shrink-0 mt-auto">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => openEmbedModal("live")}
+                className="w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+              >
+                <Code className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium truncate">Embed Live Poll</span>
+                <Sparkles className="h-3 w-3 ml-auto text-violet-300 flex-shrink-0" />
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => openEmbedModal("results")}
+                className="w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+              >
+                <BarChart2 className="h-4 w-4 flex-shrink-0" />
+                <span className="font-medium truncate">Embed Results</span>
+                <Sparkles className="h-3 w-3 ml-auto text-amber-300 flex-shrink-0" />
+              </Button>
+            </div>
+          )}
+        </CardContent>
         </div>
+      </Card>
 
-        {!hasVoted && (
-          <p className="text-xs text-center text-blue-100 mt-2">
-            Click an option to vote and see results
-          </p>
-        )}
-
-        {hasVoted && isAdvancing && !noLoadSpinner && (
-          <div className="mt-3 flex items-center justify-center">
-            <Loader2 className="h-5 w-5 animate-spin text-primary" />
-          </div>
-        )}
-
-        {showEmbed && !compact && (
-          <div className="mt-4 pt-3 border-t border-white/10">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleCopyEmbed}
-              className="w-full text-xs text-white/50 hover:text-white
-                hover:bg-white/10 gap-2"
-            >
-              {embedCopied ? (
-                <>
-                  <Check className="h-3 w-3 text-green-400" />
-                  <span className="text-green-400">Copied!</span>
-                </>
-              ) : (
-                <>
-                  <Code className="h-3 w-3" />
-                  <span>Embed this poll</span>
-                  <Copy className="h-3 w-3 ml-auto" />
-                </>
-              )}
-            </Button>
-          </div>
-        )}
-      </CardContent>
-    </Card>
+      <PollEmbedModal
+        poll={poll}
+        embedType={embedType}
+        isOpen={embedModalOpen}
+        onClose={() => setEmbedModalOpen(false)}
+      />
+    </>
   );
 }

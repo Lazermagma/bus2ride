@@ -3,7 +3,7 @@ import { ReviewsSection } from "@/components/sections/reviews-section";
 import { LocationPollsGrid } from "@/components/sections/location-polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 
 import FleetSection from "@/components/sections/fleet-section";
 import LocationReadyToPlan from "@/components/sections/location-ready-to-plan";
@@ -23,6 +23,7 @@ import { OtherFleets } from "@/components/sections/content-with-images";
 import { FaqSearchSection } from "@/components/sections/faq-search-section";
 import { getRandomVehiclesImages } from "@/lib/data/vehicles";
 import { getLocationWithContent } from "@/lib/data/locations";
+import { LocationFleetNav } from "@/components/sections/location-fleet-nav";
 import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo/metadata";
 
@@ -93,7 +94,8 @@ export default async function FleetCityPage({
 
   if (!location) return notFound();
 
-  const reviews = (await getReviews(6)) ?? [];
+  const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   const fleetTypeMap = {
     "party-buses": "party-bus",
@@ -101,12 +103,15 @@ export default async function FleetCityPage({
     "coach-buses": "coach",
   } as const;
 
-  const vehicles_images = await getRandomVehiclesImages(12, fleetType);
+  const vehicles_images = (await getRandomVehiclesImages(12, fleetType)) ?? [];
 
   return (
     <main>
       {/* Hero Section */}
       <Hero slug={location.city_slug} />
+
+      {/* Fleet Type Navigation */}
+      <LocationFleetNav currentType={fleetType} location={location} />
 
       <LocationWhyBook location={location} />
 
@@ -156,7 +161,7 @@ export default async function FleetCityPage({
         </div>
       </section>
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <LocationPlanningChecklist location={location} />
 

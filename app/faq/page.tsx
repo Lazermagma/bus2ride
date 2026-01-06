@@ -8,6 +8,7 @@ import { getReviews } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { FaqGridClient } from "@/components/sections/faq-grid.client";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
+import { ContentExpansion, type ContentBlock } from "@/components/sections/content-expansion";
 import { FactsShowcase, type FactItem } from "@/components/sections/facts-showcase";
 import { BookingProcessSection } from "@/components/sections/content-booking";
 import { LinkConstellation, type InternalLink, type ExternalLink } from "@/components/sections/link-constellation";
@@ -81,6 +82,39 @@ const EXTERNAL_LINKS: ExternalLink[] = [
   { href: "https://www.fmcsa.dot.gov/", label: "Safety Regulations", source: "FMCSA" },
 ];
 
+const FAQ_CONTENT_BLOCKS: ContentBlock[] = [
+  {
+    id: "understanding-faqs",
+    title: "Understanding Our FAQ System",
+    content: `Our FAQ section is designed to answer the most common questions about booking, pricing, vehicles, and policies. We've compiled hundreds of real questions from customers to help you find answers quickly and easily.<br><br>Questions are organized by category—booking, pricing, vehicles, events, safety, and locations. Each answer is written by our team based on actual customer inquiries and our years of experience in the transportation industry.<br><br>Can't find your answer? Use the search function or contact us directly. Our customer service team is available 24/7 to help with any questions not covered in our FAQ library.`,
+  },
+  {
+    id: "booking-questions",
+    title: "Common Booking Questions",
+    content: `Booking group transportation can raise many questions, especially for first-time renters. Here are the most frequently asked questions about the booking process.<br><br><strong>How far in advance should I book?</strong> For peak dates (prom, weddings, NYE), book 6-8 weeks ahead. Regular weekends need 2-3 weeks minimum. Last-minute bookings are possible but have limited vehicle selection.<br><br><strong>What information do I need to book?</strong> You'll need: your event date and time, pickup and dropoff locations, estimated group size, event type, and any special requirements. We'll use this to provide accurate pricing and vehicle recommendations.<br><br><strong>Can I make changes after booking?</strong> Most changes can be accommodated with advance notice. Contact us as soon as possible if you need to modify your booking. Changes may affect pricing depending on the modification.`,
+  },
+  {
+    id: "pricing-questions",
+    title: "Pricing & Payment FAQs",
+    content: `Understanding pricing is crucial for planning your event budget. Here's what you need to know about transportation costs.<br><br><strong>What's included in the quoted price?</strong> Base pricing includes the vehicle rental, driver, fuel, and standard amenities. Additional costs may include: gratuity (typically 15-20%), overtime charges if you exceed booked hours, and any special requests or add-ons.<br><br><strong>When is payment due?</strong> Most companies require a deposit (typically 25-50%) to secure your booking, with the balance due before or on the event day. Payment methods vary by company—ask about accepted forms of payment when booking.<br><br><strong>Are there hidden fees?</strong> Reputable companies are transparent about pricing. Ask about: cancellation fees, change fees, overtime rates, and any additional charges. Get everything in writing to avoid surprises.`,
+  },
+  {
+    id: "vehicle-questions",
+    title: "Vehicle & Amenity Questions",
+    content: `Choosing the right vehicle is key to a successful event. Here are answers to common questions about our fleet.<br><br><strong>What's the difference between party buses, limos, and coach buses?</strong> Party buses are designed for celebrations with entertainment systems, LED lighting, and space for dancing. Limousines offer luxury and intimacy for smaller groups. Coach buses prioritize capacity and comfort for large groups and longer distances.<br><br><strong>What amenities are included?</strong> Standard amenities vary by vehicle type. Party buses typically include: sound systems, LED lighting, climate control, and seating. Limousines may include: premium sound, mood lighting, and refreshment areas. Ask about specific amenities when booking.<br><br><strong>Can I bring food and drinks?</strong> Most vehicles allow food and non-alcoholic beverages. BYOB policies vary by state and company—always confirm alcohol policies when booking. Some companies provide refreshments as part of premium packages.`,
+  },
+  {
+    id: "safety-policy-questions",
+    title: "Safety & Policy FAQs",
+    content: `Safety and clear policies ensure a smooth experience for everyone. Here's what you need to know.<br><br><strong>What are the age requirements?</strong> For events involving alcohol, all passengers must be 21+. For non-alcohol events, age requirements vary. Prom and school events typically require chaperones. Always confirm age policies when booking.<br><br><strong>What's the cancellation policy?</strong> Policies vary by company and booking timing. Most companies offer full refunds for cancellations made 2+ weeks in advance. Closer to the event date, partial refunds or credits may apply. Read your contract carefully.<br><br><strong>What happens if the vehicle breaks down?</strong> Reputable companies have backup vehicles and 24/7 support. If a breakdown occurs, they'll arrange a replacement vehicle as quickly as possible. This is why choosing a licensed, insured company matters.`,
+  },
+  {
+    id: "using-faqs-effectively",
+    title: "Getting the Most from Our FAQs",
+    content: `Our FAQ library is a powerful resource when used effectively. Here's how to find the answers you need quickly.<br><br><strong>Use the search function</strong> - Type keywords related to your question. Our search looks through both questions and answers, so you can find relevant information even if the exact wording differs.<br><br><strong>Browse by category</strong> - If you're not sure what to search, browse by category. Booking questions cover the reservation process, pricing questions address costs, and vehicle questions explain our fleet options.<br><br><strong>Check most clicked questions</strong> - The "Most Clicked This Week" section shows what other customers are asking about. These are often the most relevant questions for current events or seasonal concerns.<br><br><strong>Still have questions?</strong> If you can't find your answer, don't hesitate to contact us. Our team is here to help, and your question might become part of our FAQ library to help future customers.`,
+  },
+];
+
 export default async function FaqPage() {
   const faqs = (await getFaqs()) ?? [];
   const reviews = (await getReviews()) ?? [];
@@ -112,6 +146,16 @@ export default async function FaqPage() {
         title="FAQ Trivia & How to Book"
         subtitle="Insider answers and step-by-step booking guide"
         bookingTitle="How to Book with Bus2Ride"
+      />
+
+      <SectionDivider variant="glow" />
+
+      <ContentExpansion
+        blocks={FAQ_CONTENT_BLOCKS}
+        title="The Complete Transportation FAQ Guide"
+        subtitle="Comprehensive answers to all your transportation questions"
+        readTime="10 min"
+        wordCount={2000}
       />
 
       <PremiumDivider />
