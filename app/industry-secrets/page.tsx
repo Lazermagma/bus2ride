@@ -3,7 +3,7 @@ import { ReviewsSection } from "@/components/sections/reviews-section";
 import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { IndustrySecretsSection } from "@/components/sections/industry-secrets-section";
 import { FaqSection } from "@/components/sections/faq-section";
@@ -75,6 +75,7 @@ const EXTERNAL_LINKS: ExternalLink[] = [
 
 export default async function IndustrySecretsPage() {
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
   const secrets = (await getSecrets()) ?? [];
   const cityCount = await getLocationsCount();
 
@@ -193,7 +194,7 @@ export default async function IndustrySecretsPage() {
 
       <SectionDivider variant="gradient" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <SectionDivider variant="dots" />
 

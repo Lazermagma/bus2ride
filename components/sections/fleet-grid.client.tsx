@@ -6,7 +6,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { VehicleData } from "@/lib/data/vehicles";
 import { toPublicStorageUrl } from "@/lib/helpers/storage";
-import { Users, Phone, ChevronRight, Check, ChevronLeft, ZoomIn, Mail, Sparkles, Search, X, SlidersHorizontal, ArrowRight, Info } from "lucide-react";
+import { Users, Phone, ChevronRight, Check, ChevronLeft, ZoomIn, Mail, Sparkles, Search, X, ArrowRight, Info } from "lucide-react";
 import { InstantQuoteButton } from "@/components/InstantQuoteButton";
 import { openLiveChat } from "@/lib/livechat";
 import { Button } from "../ui/button";
@@ -313,7 +313,6 @@ export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridP
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedAmenities, setSelectedAmenities] = useState<string[]>([]);
   const [selectedCapacityRanges, setSelectedCapacityRanges] = useState<string[]>([]);
-  const [showFilters, setShowFilters] = useState(false);
 
   // Extract all unique amenities from vehicles
   const availableAmenities = useMemo(() => {
@@ -441,25 +440,7 @@ export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridP
 
         {/* Filter Controls */}
         <div className="mb-6 space-y-4">
-          <div className="flex items-center justify-between gap-4">
-            <Button
-              variant={showFilters || hasActiveFilters ? "default" : "outline"}
-              onClick={() => setShowFilters(!showFilters)}
-              className={cn(
-                "gap-2 rounded-full border-2 transition-all",
-                showFilters || hasActiveFilters
-                  ? "bg-gradient-to-r from-pink-500 to-purple-500 text-white border-transparent hover:from-pink-600 hover:to-purple-600"
-                  : "bg-white/5 text-white border-white/20 hover:bg-white/10"
-              )}
-            >
-              <SlidersHorizontal className="h-4 w-4" />
-              Filters
-              {hasActiveFilters && (
-                <span className="ml-1 rounded-full bg-white/20 px-2 py-0.5 text-xs font-bold">
-                  {selectedAmenities.length + selectedCapacityRanges.length}
-                </span>
-              )}
-            </Button>
+          <div className="flex items-center justify-end gap-4">
             {hasActiveFilters && (
               <Button
                 variant="ghost"
@@ -473,58 +454,56 @@ export function FleetGrid({ title, vehicles = [], sectionClassName }: FleetGridP
             )}
           </div>
 
-          {/* Expandable Filter Panel */}
-          {showFilters && (
-            <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6 animate-in slide-in-from-top-2">
-              {/* Capacity Filters */}
+          {/* Filter Panel - Always Visible */}
+          <div className="rounded-2xl border border-white/10 bg-white/5 p-6 space-y-6">
+            {/* Capacity Filters */}
+            <div>
+              <Label className="text-white font-semibold mb-3 block">Capacity</Label>
+              <div className="flex flex-wrap gap-3">
+                {CAPACITY_RANGES.map(range => (
+                  <div key={range.label} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={`capacity-${range.label}`}
+                      checked={selectedCapacityRanges.includes(range.label)}
+                      onCheckedChange={() => toggleCapacityRange(range.label)}
+                      className="border-white/30 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
+                    />
+                    <Label
+                      htmlFor={`capacity-${range.label}`}
+                      className="text-sm cursor-pointer font-medium text-white/90 hover:text-white transition-colors"
+                    >
+                      {range.label} passengers
+                    </Label>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Amenity Filters */}
+            {availableAmenities.length > 0 && (
               <div>
-                <Label className="text-white font-semibold mb-3 block">Capacity</Label>
-                <div className="flex flex-wrap gap-3">
-                  {CAPACITY_RANGES.map(range => (
-                    <div key={range.label} className="flex items-center space-x-2">
+                <Label className="text-white font-semibold mb-3 block">Amenities</Label>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+                  {availableAmenities.map(amenity => (
+                    <div key={amenity} className="flex items-center space-x-2">
                       <Checkbox
-                        id={`capacity-${range.label}`}
-                        checked={selectedCapacityRanges.includes(range.label)}
-                        onCheckedChange={() => toggleCapacityRange(range.label)}
+                        id={`amenity-${amenity}`}
+                        checked={selectedAmenities.includes(amenity)}
+                        onCheckedChange={() => toggleAmenity(amenity)}
                         className="border-white/30 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
                       />
                       <Label
-                        htmlFor={`capacity-${range.label}`}
+                        htmlFor={`amenity-${amenity}`}
                         className="text-sm cursor-pointer font-medium text-white/90 hover:text-white transition-colors"
                       >
-                        {range.label} passengers
+                        {amenity}
                       </Label>
                     </div>
                   ))}
                 </div>
               </div>
-
-              {/* Amenity Filters */}
-              {availableAmenities.length > 0 && (
-                <div>
-                  <Label className="text-white font-semibold mb-3 block">Amenities</Label>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
-                    {availableAmenities.map(amenity => (
-                      <div key={amenity} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`amenity-${amenity}`}
-                          checked={selectedAmenities.includes(amenity)}
-                          onCheckedChange={() => toggleAmenity(amenity)}
-                          className="border-white/30 data-[state=checked]:bg-pink-500 data-[state=checked]:border-pink-500"
-                        />
-                        <Label
-                          htmlFor={`amenity-${amenity}`}
-                          className="text-sm cursor-pointer font-medium text-white/90 hover:text-white transition-colors"
-                        >
-                          {amenity}
-                        </Label>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
         {/* Results Count */}

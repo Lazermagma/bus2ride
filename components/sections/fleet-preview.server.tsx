@@ -8,6 +8,7 @@ export async function FleetPreviewServer({
   amenityMode = "link",
   compact = false,
   hideButtons = false,
+  isFleetPage = false,
 }: {
   title: string;
   viewAllLink: string;
@@ -15,6 +16,7 @@ export async function FleetPreviewServer({
   amenityMode?: "link" | "badge";
   compact?: boolean;
   hideButtons?: boolean;
+  isFleetPage?: boolean;
 }) {
   const vehicles = (await getVehiclesByType(type)) ?? [];
 
@@ -26,6 +28,7 @@ export async function FleetPreviewServer({
       amenityMode={amenityMode}
       compact={compact}
       hideButtons={hideButtons}
+      isFleetPage={isFleetPage}
     />
   );
 }

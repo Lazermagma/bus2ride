@@ -3,7 +3,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { getEventBySlug } from "@/lib/data/events";
 import { notFound } from "next/navigation";
 import FleetSection from "@/components/sections/fleet-section";
@@ -103,6 +103,7 @@ export default async function EventDetailPage({ params }: PageProps) {
   if (!event) return notFound();
 
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
   const intel = MOCK_EVENT_INTEL[slug] || MOCK_EVENT_INTEL["default"];
 
   return (
@@ -245,7 +246,7 @@ export default async function EventDetailPage({ params }: PageProps) {
       <ToolsGrid category="events" />
 
       {/* Reviews */}
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       {/* FAQs */}
       <FaqSection category="events" title={`${event.title} Transport FAQs`} />

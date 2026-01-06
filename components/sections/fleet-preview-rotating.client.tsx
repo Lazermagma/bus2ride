@@ -23,6 +23,7 @@ interface FleetPreviewRotatingProps {
   cardLinkTarget?: string;
   compact?: boolean;
   hideButtons?: boolean;
+  isFleetPage?: boolean;
 }
 
 function hashStringToSeed(input: string): number {
@@ -66,6 +67,19 @@ const vehicleNameMap: Record<string, string> = {
   suv: "SUV",
 };
 
+const vehicleNamePluralMap: Record<string, string> = {
+  limo: "Limousines",
+  "stretch-limo": "Limousines",
+  "party-bus": "Party Buses",
+  "party-bus-lux": "Party Buses",
+  coach: "Coach Buses",
+  "coach-bus": "Coach Buses",
+  sprinter: "Sprinter Vans",
+  "sprinter-van": "Sprinter Vans",
+  sedan: "Luxury Sedans",
+  suv: "SUVs",
+};
+
 const typeGradients: Record<string, string> = {
   limo: "from-amber-500 via-yellow-400 to-amber-500",
   "stretch-limo": "from-amber-500 via-yellow-400 to-amber-500",
@@ -81,6 +95,10 @@ const typeGradients: Record<string, string> = {
 
 function getVehicleLabel(type: string): string {
   return vehicleNameMap[type] || type.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+}
+
+function getVehicleLabelPlural(type: string): string {
+  return vehicleNamePluralMap[type] || (vehicleNameMap[type] ? vehicleNameMap[type] + "s" : "Vehicles");
 }
 
 function getVehicleGradient(type: string): string {
@@ -112,6 +130,7 @@ function RotatingVehicleCard({
   amenityMode = "badge",
   hideButtons = false,
   isPriority = false,
+  isFleetPage = false,
 }: {
   vehicle: VehicleData;
   cardLink?: string;
@@ -119,6 +138,7 @@ function RotatingVehicleCard({
   amenityMode?: "link" | "badge";
   hideButtons?: boolean;
   isPriority?: boolean;
+  isFleetPage?: boolean;
 }) {
   const [activeImageIndex, setActiveImageIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
@@ -244,7 +264,7 @@ function RotatingVehicleCard({
         </div>
 
         <Link
-          href={cardLink || `/vehicles/${vehicle.slug}`}
+          href={cardLink || getVehicleTypeLink(vehicle.type)}
           className="absolute inset-0 z-0"
           aria-label={`View ${vehicle.name}`}
         />
@@ -254,12 +274,9 @@ function RotatingVehicleCard({
         <div className="px-3 py-2 bg-slate-950/80 border-t border-white/5">
           <div className="flex gap-2">
             {images.slice(0, 4).map((img, idx) => (
-              <button
+              <Link
                 key={idx}
-                onClick={() => setActiveImageIndex(idx)}
-                onDoubleClick={() => {
-                  if (cardLink) window.location.href = cardLink;
-                }}
+                href={cardLink || getVehicleTypeLink(vehicle.type)}
                 className={cn(
                   "relative flex-1 aspect-[4/3] rounded-lg overflow-hidden transition-all duration-300 cursor-pointer",
                   activeImageIndex === idx
@@ -275,7 +292,7 @@ function RotatingVehicleCard({
                   quality={75}
                   className="object-cover"
                 />
-              </button>
+              </Link>
             ))}
           </div>
         </div>
@@ -284,7 +301,7 @@ function RotatingVehicleCard({
       <div className="flex flex-col">
         <div className="w-full px-4 mt-2">
           <Link
-            href={vehicle.slug ? `/vehicles/${vehicle.slug}` : getVehicleTypeLink(vehicle.type)}
+            href={isFleetPage && vehicle.slug ? `/vehicles/${vehicle.slug}` : (cardLink || getVehicleTypeLink(vehicle.type))}
             className={cn(
               "group relative flex items-center justify-center gap-2 w-full py-3 rounded-xl",
               "font-semibold text-white transition-all duration-300 overflow-hidden",
@@ -359,6 +376,7 @@ export function FleetPreviewRotating({
   cardLinkTarget,
   compact = false,
   hideButtons = false,
+  isFleetPage = false,
 }: FleetPreviewRotatingProps) {
   const vehiclesPerRow = compact ? 2 : VEHICLES_PER_ROW;
   const [displayedVehicles, setDisplayedVehicles] = useState<VehicleData[]>(
@@ -389,7 +407,7 @@ export function FleetPreviewRotating({
   );
 
   const vehicleTypeLabel = derivedVehicleType
-    ? getVehicleLabel(derivedVehicleType)
+    ? getVehicleLabelPlural(derivedVehicleType)
     : "Vehicles";
 
   useEffect(() => {
@@ -481,6 +499,7 @@ export function FleetPreviewRotating({
               amenityMode={amenityMode}
               hideButtons={hideButtons}
               isPriority={idx < 3}
+              isFleetPage={isFleetPage}
             />
           ))}
         </div>

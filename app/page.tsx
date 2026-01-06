@@ -166,7 +166,7 @@ export default async function Home() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
+      <ReviewsSection reviews={reviews} title="Customer Reviews" totalCount={totalReviewsCount} />
 
       <GlobalCTAs source="Homepage - After Reviews" />
 

@@ -3,7 +3,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ShareArticleButton } from "@/components/ui/share-article-button";
@@ -72,6 +72,7 @@ export default async function BlogPostPage({ params }: PageProps) {
   if (!post) return notFound();
 
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   const tags = post.tags ?? buildTopicTags(post.slug);
   const date = new Date(post.published_at ?? "").toLocaleDateString("en-US", {
@@ -202,7 +203,7 @@ export default async function BlogPostPage({ params }: PageProps) {
       <FleetSection />
       {/* <FleetList title="Related Vehicles" vehicles={fleet} /> */}
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
       <PollsGrid
         columnCategories={["wine-tours", "brewery-tours", "entertainment-tours"]}
         hideCities

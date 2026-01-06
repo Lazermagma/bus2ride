@@ -4,7 +4,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
 import { getTools } from "@/lib/data/tools";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { ToolsGridClient } from "@/components/sections/tools-grid.client";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -199,6 +199,7 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 export default async function ToolsPage() {
   const tools = await getTools(100);
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -256,7 +257,7 @@ export default async function ToolsPage() {
 
       <SectionDivider variant="glow" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <PremiumDivider />
 

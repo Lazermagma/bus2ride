@@ -9,7 +9,7 @@ import { ReviewsSection } from "@/components/sections/reviews-section";
 import { PollsGrid } from "@/components/sections/polls-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { Mail, Phone, Clock, MessageCircle, Zap, ArrowRight, Headphones, Timer, MapPin, CheckCircle2 } from "lucide-react";
 import { InstantQuoteButton } from "@/components/InstantQuoteButton";
 import { BookingProcessSection } from "@/components/sections/content-booking";
@@ -38,6 +38,7 @@ const CONTACT_TRIVIA = [
 
 export default async function ContactPage() {
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
   const facts = (await getFacts()) ?? [];
 
   const contactFacts = facts.length > 0 ? facts.slice(0, 4) : [
@@ -264,7 +265,7 @@ export default async function ContactPage() {
       <SectionDivider variant="gradient" />
 
       <FleetSection />
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
       <PollsGrid
         columnCategories={["booking-lead-times", "pricing", "weddings"]}
         hideCities

@@ -4,7 +4,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { getFaqs } from "@/lib/data/faqs";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import FleetSection from "@/components/sections/fleet-section";
 import { FaqGridClient } from "@/components/sections/faq-grid.client";
 import { TriviaBookingSection, type TriviaItem } from "@/components/sections/trivia-booking-section";
@@ -118,6 +118,7 @@ const FAQ_CONTENT_BLOCKS: ContentBlock[] = [
 export default async function FaqPage() {
   const faqs = (await getFaqs()) ?? [];
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -160,7 +161,7 @@ export default async function FaqPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <SectionDivider variant="glow" />
 

@@ -48,10 +48,10 @@ export default async function FleetSection({
           <Suspense
             fallback={<div className="h-[400px] bg-muted animate-pulse" />}
           >
-            <div className="flex flex-row items-center w-full justify-between ">
+            <div className="flex flex-row items-center w-full px-6 md:px-8 lg:px-12 xl:px-16">
 
               {/* Left Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center mr-2">
                 <Link 
                   href="/party-buses"
                   className={cn(
@@ -70,11 +70,8 @@ export default async function FleetSection({
                 </Link>
               </div>
 
-
-
-
               {/* Center Component */}
-              <div className="flex-1 mx-4">
+              <div className="flex-1">
                 <FleetPreviewServer
                   title="Party Buses"
                   viewAllLink={linkFor("party-bus")}
@@ -85,7 +82,7 @@ export default async function FleetSection({
               </div>
 
               {/* Right Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center ml-2">
                 <Link 
                   href="/party-buses"
                   className={cn(
@@ -116,9 +113,9 @@ export default async function FleetSection({
           <Suspense
             fallback={<div className="h-[400px] bg-muted animate-pulse" />}
           >
-            <div className="flex flex-row items-center w-full justify-between">
+            <div className="flex flex-row items-center w-full px-6 md:px-8 lg:px-12 xl:px-16">
               {/* Left Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center mr-2">
                 <Link 
                   href="/limousines"
                   className={cn(
@@ -138,7 +135,7 @@ export default async function FleetSection({
               </div>
 
               {/* Center Component */}
-              <div className="flex-1 mx-4">
+              <div className="flex-1">
                 <FleetPreviewServer
                   title="Luxury Limousines"
                   viewAllLink={linkFor("limo")}
@@ -149,7 +146,7 @@ export default async function FleetSection({
               </div>
 
               {/* Right Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center ml-2">
                 <Link 
                   href="/limousines"
                   className={cn(
@@ -181,9 +178,9 @@ export default async function FleetSection({
           <Suspense
             fallback={<div className="h-[400px] bg-muted animate-pulse" />}
           >
-            <div className="flex flex-row items-center w-full justify-between">
+            <div className="flex flex-row items-center w-full px-6 md:px-8 lg:px-12 xl:px-16">
               {/* Left Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center mr-2">
                 <Link 
                   href="/coach-buses"
                   className={cn(
@@ -203,7 +200,7 @@ export default async function FleetSection({
               </div>
 
               {/* Center Component */}
-              <div className="flex-1 mx-4">
+              <div className="flex-1">
                 <FleetPreviewServer
                   title="Coach Buses"
                   viewAllLink={linkFor("coach")}
@@ -214,7 +211,7 @@ export default async function FleetSection({
               </div>
 
               {/* Right Icon */}
-              <div className="flex w-16 items-center justify-center">
+              <div className="flex items-center justify-center ml-2">
                 <Link 
                   href="/coach-buses"
                   className={cn(

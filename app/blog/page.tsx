@@ -4,7 +4,7 @@ import { PollsGrid } from "@/components/sections/polls-grid";
 import { ToolsGrid } from "@/components/sections/tools-grid";
 import { EventsGrid } from "@/components/sections/events-grid";
 import { FaqSection } from "@/components/sections/faq-section";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { getBlogPosts } from "@/lib/data/blog";
 import { BlogGridClient } from "@/components/sections/blog-grid.client";
 import FleetSection from "@/components/sections/fleet-section";
@@ -202,6 +202,7 @@ const CONTENT_BLOCKS: ContentBlock[] = [
 export default async function BlogPage() {
   const blogs = (await getBlogPosts()) ?? [];
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   return (
     <main className="bg-[#0a1628]">
@@ -244,7 +245,7 @@ export default async function BlogPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
 
       <SectionDivider variant="gradient" />
 

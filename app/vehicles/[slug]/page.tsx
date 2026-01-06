@@ -12,7 +12,7 @@ import {
   getVehiclebySlug,
   getVehiclesByCapacityRange,
 } from "@/lib/data/vehicles";
-import { getReviews } from "@/lib/data/reviews";
+import { getReviews, getReviewsCount } from "@/lib/data/reviews";
 import { TriviaBookingSection } from "@/components/sections/trivia-booking-section";
 import { SectionDivider } from "@/components/layout/section-dividers";
 import { VehicleTypeIntro } from "@/components/sections/vehicle-type-intro";
@@ -77,6 +77,7 @@ async function getVehicleData(slug: string) {
     (await getSimilarVehiclesByType(vehicle.type, vehicle.id, 3)) ?? [];
 
   const reviews = (await getReviews()) ?? [];
+  const totalReviewsCount = (await getReviewsCount()) ?? 0;
 
   const capacityNum = parseInt(vehicle.capacity?.replace("pax", "") || "0", 10);
   const minCapacity = Math.max(capacityNum - 8, 6);
@@ -85,7 +86,7 @@ async function getVehicleData(slug: string) {
     ? (await getVehiclesByCapacityRange(minCapacity, maxCapacity, vehicle.id, 4)) ?? []
     : [];
 
-  return { vehicle, related, reviews, similarByCapacity };
+  return { vehicle, related, reviews, similarByCapacity, totalReviewsCount };
 }
 
 export default async function VehiclePage({ params }: PageProps) {
@@ -94,7 +95,7 @@ export default async function VehiclePage({ params }: PageProps) {
 
   if (!data) return notFound();
 
-  const { vehicle, related, reviews, similarByCapacity } = data;
+  const { vehicle, related, reviews, similarByCapacity, totalReviewsCount } = data;
 
   const categoryTitle =
     vehicle.type === "party-bus"
@@ -223,7 +224,7 @@ export default async function VehiclePage({ params }: PageProps) {
 
       <SectionDivider variant="glow" />
 
-      <ReviewsSection reviews={reviews} />
+      <ReviewsSection reviews={reviews} totalCount={totalReviewsCount} />
       <PollsGrid columnCategories={[...pollCategories]} hideCities />
       <ToolsGrid category="pricing" />
       <EventsGrid />
