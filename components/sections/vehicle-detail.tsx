@@ -991,7 +991,7 @@ export function VehicleDetail({ vehicle }: { vehicle: VehicleData }) {
                 </p>
                 <div className="mt-3 grid gap-3">
                   {commonBookingItems.map((item) => (
-                    <CommonBookingModalCard key={item.key} item={item} />
+                    <CommonBookingModalCard key={item.key} item={item} vehicle={vehicle} />
                   ))}
                 </div>
               </div>
@@ -1125,6 +1125,7 @@ function BottomInfoModalCard({
 
 function CommonBookingModalCard({
   item,
+  vehicle,
 }: {
   item: {
     key: string;
@@ -1136,6 +1137,7 @@ function CommonBookingModalCard({
     triggerClassName: string;
     titleClassName?: string;
   };
+  vehicle: VehicleData;
 }) {
   return (
     <Dialog>

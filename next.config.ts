@@ -1,12 +1,6 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  allowedDevOrigins: [
-    "928322f2-8a58-4501-9c6e-05e164c87b20-00-1e2z2u76k7a8g.picard.replit.dev",
-    "*.picard.replit.dev",
-    "*.worf.replit.dev",
-    "*.replit.dev",
-  ],
   async headers() {
     return [
       {

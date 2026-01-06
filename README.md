@@ -24,6 +24,28 @@ npm run start    # serve production build
 npm run lint     # ESLint
 ```
 
+## Deployment
+
+### Vercel (Recommended)
+
+This project is configured for Vercel deployment. See [DEPLOYMENT.md](./DEPLOYMENT.md) for detailed instructions.
+
+**Quick Deploy:**
+1. Push your code to GitHub
+2. Import the repository in [Vercel](https://vercel.com/new)
+3. Add environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+4. Deploy!
+
+**Required Environment Variables:**
+- `NEXT_PUBLIC_SUPABASE_URL` - Your Supabase project URL
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` - Your Supabase anon/public key
+
+**Optional Environment Variables:**
+- `OPENWEATHER_API_KEY` - For weather features
+- `TOMTOM_API_KEY` - For traffic features
+
 ---
 
 ## Global Component Rules
