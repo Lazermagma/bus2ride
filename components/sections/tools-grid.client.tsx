@@ -5,6 +5,7 @@ import { Search, X, Wrench, Calculator, CheckSquare, Shield, MapPin, Calendar, D
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { ToolCard } from "@/components/sections/tool-card";
 import { ToolData } from "@/lib/data/tools";
 import { cn } from "@/lib/utils";
@@ -99,40 +100,42 @@ interface ToolsGridClientProps {
 
 export function ToolsGridClient({ tools }: ToolsGridClientProps) {
   const [query, setQuery] = React.useState("");
-  const [selectedCategory, setSelectedCategory] = React.useState("all");
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>(["all"]);
   const [showAll, setShowAll] = React.useState(false);
 
-  const categorizeItem = React.useCallback((tool: ToolData) => {
-    if (tool.category) return tool.category;
-    
-    const searchText = `${tool.title} ${tool.slug || ""} ${tool.description || ""}`.toLowerCase();
-    
-    for (const cat of TOOL_CATEGORIES) {
-      if (cat.id === "all") continue;
-      if (cat.keywords?.some(kw => searchText.includes(kw))) {
-        return cat.id;
+  // Get unique categories from database tools
+  const availableCategories = React.useMemo(() => {
+    const categories = new Set<string>();
+    tools.forEach((tool) => {
+      if (tool.category) {
+        categories.add(tool.category);
       }
-    }
-    return "planning";
-  }, []);
+    });
+    return Array.from(categories).sort();
+  }, [tools]);
 
+  // Group tools by their database category
   const toolsByCategory = React.useMemo(() => {
     const grouped: Record<string, ToolData[]> = {};
     
     tools.forEach((tool) => {
-      const category = categorizeItem(tool);
+      const category = tool.category || "other";
       if (!grouped[category]) grouped[category] = [];
       grouped[category].push(tool);
     });
     
     return grouped;
-  }, [tools, categorizeItem]);
+  }, [tools]);
 
+  // Filter tools by selected categories (using database category field)
   const filteredTools = React.useMemo(() => {
     let filtered = tools;
     
-    if (selectedCategory !== "all") {
-      filtered = filtered.filter((tool) => categorizeItem(tool) === selectedCategory);
+    if (!selectedCategories.includes("all") && selectedCategories.length > 0) {
+      filtered = filtered.filter((tool) => {
+        const toolCategory = tool.category || "other";
+        return selectedCategories.includes(toolCategory);
+      });
     }
     
     if (query.trim()) {
@@ -146,13 +149,27 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
     }
     
     return filtered;
-  }, [query, selectedCategory, tools, categorizeItem]);
+  }, [query, selectedCategories, tools]);
+
+  const handleCategoryToggle = (categoryId: string) => {
+    if (categoryId === "all") {
+      setSelectedCategories(["all"]);
+    } else {
+      setSelectedCategories((prev) => {
+        const newCategories = prev.includes(categoryId)
+          ? prev.filter((id) => id !== categoryId)
+          : [...prev.filter((id) => id !== "all"), categoryId];
+        return newCategories.length === 0 ? ["all"] : newCategories;
+      });
+    }
+    setShowAll(false);
+  };
 
   const displayedTools = showAll ? filteredTools : filteredTools.slice(0, 12);
   const hasMore = filteredTools.length > 12 && !showAll;
 
   const withBreaks = React.useMemo(() => {
-    if (selectedCategory !== "all" || query.trim()) {
+    if (!selectedCategories.includes("all") || query.trim()) {
       return displayedTools.map((tool) => ({ kind: "tool" as const, tool }));
     }
 
@@ -186,7 +203,7 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
     });
 
     return out;
-  }, [displayedTools, selectedCategory, query]);
+  }, [displayedTools, selectedCategories, query]);
 
   return (
     <section className="py-16 bg-gradient-to-b from-[#060e23] to-[#0a1628]">
@@ -206,7 +223,7 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
           </p>
         </div>
 
-        <div className="max-w-2xl mx-auto mb-8">
+        <div className="max-w-2xl mx-auto mb-6">
           <div className="relative">
             <Search className="absolute left-5 top-1/2 h-5 w-5 -translate-y-1/2 text-orange-300/50" />
             <Input
@@ -229,46 +246,98 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-2 mb-8">
-          {TOOL_CATEGORIES.map((cat) => {
-            const Icon = cat.icon;
-            const isActive = selectedCategory === cat.id;
-            const count = cat.id === "all" ? tools.length : (toolsByCategory[cat.id]?.length || 0);
-            
-            if (cat.id !== "all" && count === 0) return null;
-            
-            return (
-              <button
-                key={cat.id}
-                onClick={() => {
-                  setSelectedCategory(cat.id);
-                  setShowAll(false);
-                }}
+        <div className="max-w-4xl mx-auto mb-8">
+          <div className="bg-white/5 rounded-2xl border border-white/10 p-6">
+            <div className="flex flex-wrap gap-4 justify-center">
+              {/* All Tools checkbox */}
+              <label
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-full text-sm font-medium transition-all",
-                  isActive
-                    ? `bg-gradient-to-r ${cat.color} text-white shadow-lg`
-                    : "bg-white/5 text-white/70 border border-white/10 hover:bg-white/10 hover:text-white"
+                  "flex items-center gap-2.5 cursor-pointer group",
+                  "px-4 py-2.5 rounded-lg transition-all",
+                  selectedCategories.includes("all")
+                    ? "bg-orange-500/20 border border-orange-500/40"
+                    : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
                 )}
               >
-                <Icon className="w-4 h-4" />
-                <span>{cat.label}</span>
+                <Checkbox
+                  checked={selectedCategories.includes("all")}
+                  onCheckedChange={() => handleCategoryToggle("all")}
+                  className="border-white/40 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                />
+                <Wrench className={cn(
+                  "w-4 h-4 transition-colors",
+                  selectedCategories.includes("all") ? "text-orange-300" : "text-white/60 group-hover:text-white/80"
+                )} />
                 <span className={cn(
-                  "px-2 py-0.5 rounded-full text-xs",
-                  isActive ? "bg-white/20" : "bg-white/10"
+                  "text-sm font-medium transition-colors",
+                  selectedCategories.includes("all") ? "text-white" : "text-white/70 group-hover:text-white/90"
                 )}>
-                  {count}
+                  All Tools
                 </span>
-              </button>
-            );
-          })}
+                <span className={cn(
+                  "px-2 py-0.5 rounded-full text-xs font-semibold",
+                  selectedCategories.includes("all") ? "bg-orange-500/30 text-orange-200" : "bg-white/10 text-white/60"
+                )}>
+                  {tools.length}
+                </span>
+              </label>
+
+              {/* Database categories */}
+              {availableCategories.map((category) => {
+                const catConfig = TOOL_CATEGORIES.find(c => c.id === category);
+                const Icon = catConfig?.icon || Wrench;
+                const label = catConfig?.label || category.charAt(0).toUpperCase() + category.slice(1);
+                const isChecked = selectedCategories.includes(category);
+                const count = toolsByCategory[category]?.length || 0;
+                
+                if (count === 0) return null;
+                
+                return (
+                  <label
+                    key={category}
+                    className={cn(
+                      "flex items-center gap-2.5 cursor-pointer group",
+                      "px-4 py-2.5 rounded-lg transition-all",
+                      isChecked
+                        ? "bg-orange-500/20 border border-orange-500/40"
+                        : "bg-white/5 border border-white/10 hover:bg-white/10 hover:border-white/20"
+                    )}
+                  >
+                    <Checkbox
+                      checked={isChecked}
+                      onCheckedChange={() => handleCategoryToggle(category)}
+                      className="border-white/40 data-[state=checked]:bg-orange-500 data-[state=checked]:border-orange-500"
+                    />
+                    <Icon className={cn(
+                      "w-4 h-4 transition-colors",
+                      isChecked ? "text-orange-300" : "text-white/60 group-hover:text-white/80"
+                    )} />
+                    <span className={cn(
+                      "text-sm font-medium transition-colors",
+                      isChecked ? "text-white" : "text-white/70 group-hover:text-white/90"
+                    )}>
+                      {label}
+                    </span>
+                    <span className={cn(
+                      "px-2 py-0.5 rounded-full text-xs font-semibold",
+                      isChecked ? "bg-orange-500/30 text-orange-200" : "bg-white/10 text-white/60"
+                    )}>
+                      {count}
+                    </span>
+                  </label>
+                );
+              })}
+            </div>
+          </div>
         </div>
 
-        {(query || selectedCategory !== "all") && (
+        {(query || (!selectedCategories.includes("all") && selectedCategories.length > 0)) && (
           <div className="flex items-center justify-between mb-6">
             <p className="text-blue-200/70">
               {filteredTools.length} tool{filteredTools.length !== 1 ? "s" : ""} found
-              {selectedCategory !== "all" && ` in ${TOOL_CATEGORIES.find(c => c.id === selectedCategory)?.label}`}
+              {!selectedCategories.includes("all") && selectedCategories.length > 0 && (
+                ` in ${selectedCategories.map(id => TOOL_CATEGORIES.find(c => c.id === id)?.label).filter(Boolean).join(", ")}`
+              )}
               {query && ` matching "${query}"`}
             </p>
             <Button
@@ -276,7 +345,7 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
               size="sm"
               onClick={() => {
                 setQuery("");
-                setSelectedCategory("all");
+                setSelectedCategories(["all"]);
                 setShowAll(false);
               }}
               className="text-orange-300 hover:text-white"
@@ -319,7 +388,7 @@ export function ToolsGridClient({ tools }: ToolsGridClientProps) {
               variant="outline"
               onClick={() => {
                 setQuery("");
-                setSelectedCategory("all");
+                setSelectedCategories(["all"]);
               }}
               className="mt-4 rounded-full border-white/20 text-white hover:bg-white/10"
             >
