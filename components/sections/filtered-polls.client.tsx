@@ -97,6 +97,9 @@ export function FilteredPollsClient({ categories }: FilteredPollsClientProps) {
     );
   }
 
+  const INITIAL_DISPLAY = 6;
+  const showScrollable = polls.length > INITIAL_DISPLAY;
+
   return (
     <section className="py-12 bg-gradient-to-b from-[#0a1628] to-[#0d1d3a]">
       <div className="container mx-auto px-4 md:px-6">
@@ -109,28 +112,27 @@ export function FilteredPollsClient({ categories }: FilteredPollsClientProps) {
           </p>
         </div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {polls.map((poll) => (
-            <PollCard key={poll.id} poll={poll} />
-          ))}
-        </div>
-
-        {hasMore && (
-          <div className="mt-8 text-center">
-            <button
-              onClick={loadMore}
-              disabled={loading}
-              className="px-6 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2 mx-auto"
+        {showScrollable ? (
+          <div className="relative max-w-5xl mx-auto">
+            <div
+              className="h-[600px] md:h-[700px] overflow-y-scroll rounded-3xl polls-column-scroll
+                scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent
+                pr-2"
             >
-              {loading ? (
-                <>
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                  Loading...
-                </>
-              ) : (
-                "Load More Polls"
-              )}
-            </button>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {polls.map((poll) => (
+                  <PollCard key={poll.id} poll={poll} compact />
+                ))}
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="max-w-5xl mx-auto">
+            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+              {polls.map((poll) => (
+                <PollCard key={poll.id} poll={poll} compact />
+              ))}
+            </div>
           </div>
         )}
       </div>

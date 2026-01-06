@@ -898,6 +898,41 @@ export function PollsExplorer({ categories, locations }: PollsExplorerProps) {
           </div>
         )}
 
+        {/* Quick Category Grid - 2 rows x 3 columns */}
+        {!searchQuery && (
+          <div className="max-w-6xl mx-auto mb-12">
+            <div className="flex items-center gap-2 mb-6">
+              <Sparkles className="w-6 h-6 text-blue-400" />
+              <h3 className="text-xl font-bold text-white">Popular Categories</h3>
+            </div>
+            
+            <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+              {categories.slice(0, 6).map(cat => {
+                const Icon = ICON_MAP[cat.iconName] || Car;
+                return (
+                  <button
+                    key={cat.slug}
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`group p-5 rounded-2xl bg-gradient-to-br from-white/5 to-white/[0.02] border border-white/10 hover:border-white/30 transition-all text-left`}
+                  >
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className={`w-10 h-10 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center`}>
+                        <Icon className="w-5 h-5 text-white" />
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-white font-bold">{cat.title}</h3>
+                        <p className="text-white/50 text-sm">View polls</p>
+                      </div>
+                      <ChevronRight className="w-5 h-5 text-white/30 group-hover:text-white/60 transition-colors" />
+                    </div>
+                    <p className={`text-sm ${cat.textColor}`}>Browse category</p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="max-w-6xl mx-auto mb-12">
           <div className="flex items-center gap-2 mb-6">
             <Sparkles className="w-6 h-6 text-purple-400" />

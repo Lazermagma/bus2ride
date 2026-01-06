@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useState, useEffect, useRef } from "react";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { 
-  Trophy, TrendingUp, Zap, Clock, Target, BarChart3, 
-  Sparkles, Shuffle, Users, Star, Lightbulb, Flame
+  Trophy, TrendingUp, Zap, BarChart3, 
+  Shuffle, Lightbulb, Flame
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -13,9 +13,6 @@ export type FilterType =
   | "popular" 
   | "trending" 
   | "rising" 
-  | "new" 
-  | "hardest" 
-  | "easiest" 
   | "today"
   | "hidden-gems"
   | "random";
@@ -63,36 +60,12 @@ const FILTERS: FilterConfig[] = [
     description: "Fastest growing right now"
   },
   { 
-    id: "new", 
-    label: "New", 
-    shortLabel: "New",
-    icon: Sparkles, 
-    color: "from-pink-500 to-rose-500",
-    description: "Recently added polls"
-  },
-  { 
     id: "today", 
     label: "Today's Hot", 
     shortLabel: "Today",
     icon: Zap, 
     color: "from-yellow-500 to-amber-500",
     description: "Most active today"
-  },
-  { 
-    id: "hardest", 
-    label: "Hardest", 
-    shortLabel: "Hard",
-    icon: Target, 
-    color: "from-red-600 to-red-500",
-    description: "Lowest consensus polls"
-  },
-  { 
-    id: "easiest", 
-    label: "Easiest", 
-    shortLabel: "Easy",
-    icon: Star, 
-    color: "from-emerald-500 to-green-500",
-    description: "Highest consensus polls"
   },
   { 
     id: "hidden-gems", 
@@ -121,7 +94,9 @@ interface PollFilterTabsProps {
 
 export function PollFilterTabs({ activeFilter, onFilterChange, compact = false, basePath = "/polls" }: PollFilterTabsProps) {
   const router = useRouter();
+  const pathname = usePathname();
   const searchParams = useSearchParams();
+  const scrollPositionRef = useRef<number>(0);
   
   const urlFilter = searchParams.get("filter") as FilterType | null;
   const initialFilter = activeFilter ?? urlFilter ?? "all";
@@ -134,6 +109,14 @@ export function PollFilterTabs({ activeFilter, onFilterChange, compact = false, 
     } else if (!currentFilter) {
       setSelected("all");
     }
+    
+    // Restore scroll position after filter change
+    if (scrollPositionRef.current > 0) {
+      requestAnimationFrame(() => {
+        window.scrollTo(0, scrollPositionRef.current);
+        scrollPositionRef.current = 0;
+      });
+    }
   }, [searchParams]);
 
   const handleFilterClick = (filter: FilterType) => {
@@ -142,13 +125,18 @@ export function PollFilterTabs({ activeFilter, onFilterChange, compact = false, 
     if (onFilterChange) {
       onFilterChange(filter);
     } else {
+      // Store current scroll position before navigation
+      scrollPositionRef.current = window.scrollY;
+      
       const params = new URLSearchParams(searchParams.toString());
       if (filter === "all") {
         params.delete("filter");
       } else {
         params.set("filter", filter);
       }
-      router.push(`${basePath}${params.toString() ? `?${params.toString()}` : ""}`);
+      
+      // Update URL - this will trigger the useEffect above to restore scroll
+      router.replace(`${pathname}${params.toString() ? `?${params.toString()}` : ""}`);
     }
   };
 

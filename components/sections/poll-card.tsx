@@ -135,8 +135,8 @@ export function PollCard({
           "hover:scale-[1.02] hover:shadow-2xl hover:border-white/40 hover:z-50 relative"
         )}
       >
-        <div className="h-fit pb-8">
-        <CardHeader className={cn("relative pb-3 z-10", compact && "pb-2 px-3 pt-3")}>
+        <div className={cn("h-fit", compact ? "pb-3" : "pb-8")}>
+        <CardHeader className={cn("relative z-10", compact ? "pb-1.5 px-3 pt-2.5" : "pb-3")}>
           <div className="flex items-start justify-between gap-2 mb-2">
             <div className="flex items-center gap-2">
               <div className="w-2 h-2 rounded-full bg-white/60 animate-pulse" />
@@ -149,12 +149,12 @@ export function PollCard({
               </div>
             )}
           </div>
-          <CardTitle className={cn("text-lg text-white font-bold leading-tight drop-shadow-lg", compact && "text-sm")}>
+          <CardTitle className={cn("text-lg text-white font-bold leading-tight drop-shadow-lg mb-4", compact && "text-sm")}>
             {poll.question}
           </CardTitle>
         </CardHeader>
 
-        <CardContent className={cn("relative flex flex-col z-10 h-fit", compact && "px-3 pb-3")}>
+        <CardContent className={cn("relative flex flex-col z-10 h-fit", compact ? "px-3 pb-2" : "")}>
           <div className={cn("flex flex-col", hasVoted ? "gap-2" : "gap-3")}>
             {(() => {
               // Sort options by vote count when results are shown
@@ -229,28 +229,34 @@ export function PollCard({
           </div>
 
           {/* EMBED BUTTONS */}
-          {showEmbed && !compact && (
-            <div className="pb-10 pt-1 border-t h-fit border-white/20 space-y-2  flex-shrink-0 mt-auto">
+          {showEmbed && (
+            <div className={cn("border-t h-fit border-white/20 space-y-2 flex-shrink-0 mt-4", compact ? "pb-2 pt-1" : "pb-10 pt-1")}>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => openEmbedModal("live")}
-                className="w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+                className={cn(
+                  "w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]",
+                  compact && "text-[10px] py-1.5"
+                )}
               >
-                <Code className="h-4 w-4 flex-shrink-0" />
+                <Code className={cn("h-4 w-4 flex-shrink-0", compact && "h-3 w-3")} />
                 <span className="font-medium truncate">Embed Live Poll</span>
-                <Sparkles className="h-3 w-3 ml-auto text-violet-300 flex-shrink-0" />
+                <Sparkles className={cn("h-3 w-3 ml-auto text-violet-300 flex-shrink-0", compact && "h-2.5 w-2.5")} />
               </Button>
 
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => openEmbedModal("results")}
-                className="w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]"
+                className={cn(
+                  "w-full text-xs text-white/90 hover:text-white hover:bg-white/20 gap-2 rounded-lg transition-all duration-200 hover:scale-[1.02]",
+                  compact && "text-[10px] py-1.5"
+                )}
               >
-                <BarChart2 className="h-4 w-4 flex-shrink-0" />
+                <BarChart2 className={cn("h-4 w-4 flex-shrink-0", compact && "h-3 w-3")} />
                 <span className="font-medium truncate">Embed Results</span>
-                <Sparkles className="h-3 w-3 ml-auto text-amber-300 flex-shrink-0" />
+                <Sparkles className={cn("h-3 w-3 ml-auto text-amber-300 flex-shrink-0", compact && "h-2.5 w-2.5")} />
               </Button>
             </div>
           )}
