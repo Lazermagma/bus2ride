@@ -40,7 +40,10 @@ export function EventCard({
         isHovered && "opacity-60"
       )} />
       
-      <div className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-white/10">
+      <Link 
+        href={`/events/${event.slug}`}
+        className="relative h-full flex flex-col overflow-hidden rounded-2xl bg-gradient-to-b from-slate-900 to-slate-950 border border-white/10 cursor-pointer"
+      >
         <div className="relative aspect-[16/10] overflow-hidden">
           <Image
             src={getRandomImage(event.images, "Events1")}
@@ -77,7 +80,7 @@ export function EventCard({
             {event.description}
           </p>
 
-          <div className="mt-auto flex gap-2">
+          <div className="mt-auto flex gap-2" onClick={(e) => e.stopPropagation()}>
             <Button
               asChild
               size="sm"
@@ -86,27 +89,29 @@ export function EventCard({
                 gradient
               )}
             >
-              <Link href={`/events/${event.slug}`}>
+              <span>
                 <Sparkles className="w-3 h-3 mr-1.5" />
                 Learn More
                 <ArrowRight className="w-3 h-3 ml-1" />
-              </Link>
+              </span>
             </Button>
             
             <Button
-              asChild
               size="sm"
               variant="outline"
               className="rounded-lg border-white/20 bg-white/5 text-white text-xs font-semibold hover:bg-white hover:text-slate-900 transition-all"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = "tel:8885352566";
+              }}
             >
-              <a href="tel:8885352566">
-                <Phone className="w-3 h-3 mr-1.5" />
-                Call
-              </a>
+              <Phone className="w-3 h-3 mr-1.5" />
+              Call
             </Button>
           </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

@@ -108,7 +108,7 @@ export default async function EventDetailPage({ params }: PageProps) {
 
   return (
     <main>
-      <Hero slug={event.slug} />
+      <Hero slug={event.slug} event={event} />
 
       {/* Event Content + Quick Planner */}
       <section className="bg-gradient-to-b from-[#0a1628] to-[#122a56] py-12 px-4 md:px-6">
@@ -158,7 +158,7 @@ export default async function EventDetailPage({ params }: PageProps) {
           
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <FleetSection showPartyBuses showLimousines={false} showCoachBuses={false} compact />
+              <FleetSection showPartyBuses showLimousines={false} showCoachBuses={false} compact isFleetPage={false} />
             </div>
             <EventIntelCard
               type="quick-facts"
@@ -196,7 +196,7 @@ export default async function EventDetailPage({ params }: PageProps) {
               className="order-2 lg:order-1"
             />
             <div className="lg:col-span-2 order-1 lg:order-2">
-              <FleetSection showPartyBuses={false} showLimousines showCoachBuses={false} compact />
+              <FleetSection showPartyBuses={false} showLimousines showCoachBuses={false} compact isFleetPage={false} />
             </div>
           </div>
         </div>
@@ -221,7 +221,7 @@ export default async function EventDetailPage({ params }: PageProps) {
           
           <div className="grid lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <FleetSection showPartyBuses={false} showLimousines={false} showCoachBuses compact />
+              <FleetSection showPartyBuses={false} showLimousines={false} showCoachBuses compact isFleetPage={false} />
             </div>
             <EventIntelCard
               type="pro-tips"
@@ -234,6 +234,15 @@ export default async function EventDetailPage({ params }: PageProps) {
       </section>
 
       <SectionDivider variant="glow" />
+
+      {/* Other Events */}
+      <EventsGrid 
+        excludeSlug={event.slug} 
+        title="Other Events We Transport"
+        subtitle="From weddings to wine tours, we've got your group covered."
+      />
+
+      <SectionDivider variant="gradient" />
 
       {/* Polls */}
       <PollsGrid
@@ -250,15 +259,6 @@ export default async function EventDetailPage({ params }: PageProps) {
 
       {/* FAQs */}
       <FaqSection category="events" title={`${event.title} Transport FAQs`} />
-
-      <SectionDivider variant="gradient" />
-
-      {/* Other Events */}
-      <EventsGrid 
-        excludeSlug={event.slug} 
-        title="Other Events We Transport"
-        subtitle="From weddings to wine tours, we've got your group covered."
-      />
 
       {/* Ready to ride CTA */}
       <section className="max-w-7xl mx-auto px-4 md:px-6 pb-12">
@@ -277,13 +277,13 @@ export default async function EventDetailPage({ params }: PageProps) {
             <InstantQuoteButton 
               source={`Event - ${event.title}`}
               size="lg"
-              className="px-8 py-4 text-base rounded-full shadow-lg"
+              className="px-8 py-4 text-base rounded-full shadow-lg h-auto min-h-[56px] flex items-center justify-center"
             />
             <a
               href="tel:8885352566"
               className="rounded-full font-bold px-8 py-4 text-base shadow-lg
                 transition border flex items-center justify-center bg-blue-600
-                text-white border-blue-700 hover:bg-blue-700"
+                text-white border-blue-700 hover:bg-blue-700 min-h-[56px]"
             >
               Talk to a Planner
             </a>
@@ -291,7 +291,7 @@ export default async function EventDetailPage({ params }: PageProps) {
               href="/fleet"
               className="rounded-full font-bold px-8 py-4 text-base shadow-lg
                 transition border flex items-center justify-center bg-blue-800/80
-                text-white border-blue-900 hover:bg-blue-900"
+                text-white border-blue-900 hover:bg-blue-900 min-h-[56px]"
             >
               Browse Fleet
             </a>

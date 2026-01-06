@@ -141,7 +141,13 @@ export default async function ReviewsPage() {
 
       <PremiumDivider />
 
-      <ReviewsSection reviews={reviews} title="All Customer Reviews" totalCount={totalReviewsCount} />
+      <ReviewsSection 
+        reviews={reviews} 
+        title="All Customer Reviews" 
+        totalCount={totalReviewsCount}
+        facts={REVIEW_FACTS}
+        trivia={REVIEW_TRIVIA}
+      />
 
       <SectionDivider variant="gradient" />
 

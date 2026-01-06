@@ -199,7 +199,8 @@ const fallbackHeroes: Record<string, HeroData> = {
     title: "Contact Us—We're Here to Help",
     subtitle: "Get in touch with our team for quotes, questions, or special requests.",
     ctas: [
-      { href: "tel:8885352566", label: "Call Now", style: "primary" },
+      { href: "/pricing", label: "Get Quote", style: "primary" },
+      { href: "tel:8885352566", label: "Call Now", style: "secondary" },
     ],
     storage_bucket: "vehicles1",
     image_keys: null,

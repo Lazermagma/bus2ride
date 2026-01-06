@@ -10,6 +10,8 @@ import { fetchTomTomTraffic } from "@/lib/api/traffic";
 import { TrafficConditions } from "./live-traffic-conditions";
 import VehicleImageGallery from "./vehicle-image-gallery.client";
 import { fetchStateGeocodeData } from "@/lib/api/geocode";
+import { getPollsByLocation, getPolls, type PollWithOptions } from "@/lib/data/polls";
+import { PollCard } from "./poll-card";
 
 export default async function LocationComfortChecklist({
   location,
@@ -84,10 +86,27 @@ export default async function LocationComfortChecklist({
     state ? stateGeoData.coordinates.lng : location?.coordinates.lng || 0,
   );
 
+  // Get a poll for the lower right section
+  const cityName = location?.city_name || "";
+  let featuredPoll: PollWithOptions | null = null;
+  if (cityName) {
+    const locationPolls = await getPollsByLocation(cityName, 1);
+    if (locationPolls && locationPolls.length > 0) {
+      featuredPoll = locationPolls[0];
+    }
+  }
+  if (!featuredPoll) {
+    const fallbackPolls = await getPolls(5, "");
+    if (fallbackPolls && fallbackPolls.length > 0) {
+      featuredPoll = fallbackPolls[0];
+    }
+  }
+
   // Final variables
 
   const name = state ? state.name : location?.city_name;
   const stateName = state ? state.name : location?.state_name;
+  const stateSlug = state ? state.slug : location?.state_slug;
   const comfortChecklist = state
     ? state.comfort_checklist
     : location?.comfort_checklist;
@@ -582,7 +601,11 @@ export default async function LocationComfortChecklist({
           </div> */}
 
           {/* Road conditions */}
-          <TrafficConditions data={traffic} />
+          <TrafficConditions 
+            data={traffic} 
+            stateName={stateName}
+            stateSlug={stateSlug}
+          />
 
           <div className="mt-6">
             <h4 className="text-sm font-semibold text-blue-200 mb-2">
@@ -594,6 +617,18 @@ export default async function LocationComfortChecklist({
               imageUrls={gallery2.length ? gallery2 : gallery1}
             />
           </div>
+
+          {/* Featured Poll or Trivia */}
+          {featuredPoll && (
+            <div className="mt-6">
+              <h4 className="text-sm font-semibold text-blue-200 mb-3">
+                Community Question
+              </h4>
+              <div className="rounded-2xl border border-blue-700/40 bg-[#0f2148] p-4 overflow-hidden">
+                <PollCard poll={featuredPoll} compact />
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

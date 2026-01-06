@@ -14,6 +14,7 @@ interface FleetSectionProps {
   };
   compact?: boolean;
   hideButtons?: boolean;
+  isFleetPage?: boolean;
 }
 
 export default async function FleetSection({
@@ -23,6 +24,7 @@ export default async function FleetSection({
   location,
   compact = false,
   hideButtons = false,
+  isFleetPage = false,
 }: FleetSectionProps) {
   const linkFor = (fleet: "party-bus" | "limo" | "coach") => {
     if (!location) {
@@ -78,6 +80,7 @@ export default async function FleetSection({
                   type="party-bus"
                   compact={compact}
                   hideButtons={hideButtons}
+                  isFleetPage={isFleetPage}
                 />
               </div>
 
@@ -142,6 +145,7 @@ export default async function FleetSection({
                   type="limo"
                   compact={compact}
                   hideButtons={hideButtons}
+                  isFleetPage={isFleetPage}
                 />
               </div>
 
@@ -207,6 +211,7 @@ export default async function FleetSection({
                   type="coach"
                   compact={compact}
                   hideButtons={hideButtons}
+                  isFleetPage={isFleetPage}
                 />
               </div>
 

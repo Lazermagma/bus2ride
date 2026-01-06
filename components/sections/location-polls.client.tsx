@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import { useState, useEffect, useCallback, useRef } from "react";
-import { ChevronLeft, ChevronRight, Check, Copy, Code, BarChart3 } from "lucide-react";
+import { ChevronLeft, ChevronRight, Check, Copy, Code, BarChart3, Sparkles } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 import { PollEmbedModal } from "./poll-embed-modal";
 
@@ -25,6 +25,15 @@ interface LocationPollsClientProps {
   cityName: string;
 }
 
+const GRADIENT_CLASSES = [
+  "from-indigo-600 via-purple-600 to-pink-600",
+  "from-blue-600 via-cyan-600 to-teal-600",
+  "from-violet-600 via-fuchsia-600 to-rose-600",
+  "from-emerald-600 via-green-600 to-lime-600",
+  "from-orange-600 via-red-600 to-pink-600",
+  "from-amber-600 via-yellow-600 to-orange-600",
+];
+
 function PollCard({ 
   poll, 
   onEmbedLive, 
@@ -37,6 +46,14 @@ function PollCard({
   const [votedOptionId, setVotedOptionId] = useState<string | null>(null);
   const [localOptions, setLocalOptions] = useState(poll.options);
   const [isVoting, setIsVoting] = useState(false);
+
+  // Get stable gradient based on poll ID
+  const gradientClass = React.useMemo(() => {
+    const index =
+      poll.id.split("").reduce((acc, c) => acc + c.charCodeAt(0), 0) %
+      GRADIENT_CLASSES.length;
+    return GRADIENT_CLASSES[index];
+  }, [poll.id]);
 
   const totalVotes = localOptions.reduce((sum, opt) => sum + (opt.vote_count || 0), 0);
 
@@ -65,8 +82,19 @@ function PollCard({
   };
 
   return (
-    <div className="rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-slate-950/90 p-5 shadow-lg flex flex-col h-full">
-      <h3 className="text-white font-semibold text-base mb-4 line-clamp-2 min-h-[48px]">
+    <div className={`rounded-2xl border-2 border-white/40 bg-gradient-to-br ${gradientClass} p-5 shadow-xl flex flex-col h-full hover:scale-[1.02] hover:shadow-2xl hover:border-white/60 transition-all duration-300`}>
+      <div className="flex items-start justify-between gap-2 mb-2">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-white/80 animate-pulse" />
+          <span className="text-xs font-semibold text-white/90 uppercase tracking-wider">Live Poll</span>
+        </div>
+        {totalVotes > 0 && (
+          <div className="flex items-center gap-1 text-xs text-white/80">
+            <span>{totalVotes.toLocaleString()}</span>
+          </div>
+        )}
+      </div>
+      <h3 className="text-white font-bold text-base mb-4 line-clamp-2 min-h-[48px] drop-shadow-lg">
         {poll.question}
       </h3>
 
@@ -110,20 +138,22 @@ function PollCard({
         })}
       </div>
 
-      <div className="mt-4 pt-3 border-t border-white/10 flex gap-2">
+      <div className="mt-4 pt-3 border-t border-white/20 space-y-2">
         <button
           onClick={() => onEmbedLive(poll.id)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 text-xs font-medium transition"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/20 text-xs font-medium transition-all duration-200 hover:scale-[1.02]"
         >
-          <Code className="w-3.5 h-3.5" />
-          Embed Poll
+          <Code className="h-4 w-4 flex-shrink-0" />
+          <span className="font-medium truncate">Embed Live Poll</span>
+          <Sparkles className="h-3 w-3 ml-auto text-violet-300 flex-shrink-0" />
         </button>
         <button
           onClick={() => onEmbedResults(poll.id)}
-          className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-medium transition"
+          className="w-full flex items-center justify-center gap-2 px-3 py-2 rounded-lg text-white/90 hover:text-white hover:bg-white/20 text-xs font-medium transition-all duration-200 hover:scale-[1.02]"
         >
-          <BarChart3 className="w-3.5 h-3.5" />
-          Embed Results
+          <BarChart3 className="h-4 w-4 flex-shrink-0" />
+          <span className="font-medium truncate">Embed Results</span>
+          <Sparkles className="h-3 w-3 ml-auto text-amber-300 flex-shrink-0" />
         </button>
       </div>
     </div>

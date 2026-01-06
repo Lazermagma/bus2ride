@@ -101,37 +101,46 @@ export function FilteredPollsClient({ categories }: FilteredPollsClientProps) {
   const showScrollable = polls.length > INITIAL_DISPLAY;
 
   return (
-    <section className="py-12 bg-gradient-to-b from-[#0a1628] to-[#0d1d3a]">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mb-8">
-          <h2 className="text-2xl md:text-3xl font-extrabold text-white font-serif mb-2">
+    <section className="relative overflow-hidden bg-gradient-to-b from-[#0d1d3a] via-[#0a1628] to-[#060e23] py-20 md:py-32">
+      <div className="absolute inset-0 bg-mesh opacity-40" />
+      <div className="absolute top-1/4 left-0 w-[600px] h-[600px] rounded-full bg-indigo-500/10 blur-[200px] pointer-events-none animate-orb-drift" />
+      <div className="absolute bottom-1/4 right-0 w-[500px] h-[500px] rounded-full bg-purple-500/10 blur-[180px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-blue-500/5 blur-[250px] pointer-events-none" />
+      
+      <div className="relative container mx-auto px-4 md:px-6 max-w-7xl">
+        <div className="mb-12 text-center animate-fade-up">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white font-serif mb-4 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent">
             Browse All Polls
           </h2>
-          <p className="text-white/60">
+          <p className="text-lg md:text-xl text-white/80 max-w-3xl mx-auto">
             Showing {polls.length} {filter !== "all" ? filter : ""} polls
           </p>
         </div>
 
         {showScrollable ? (
           <div className="relative max-w-5xl mx-auto">
-            <div
-              className="h-[600px] md:h-[700px] overflow-y-scroll rounded-3xl polls-column-scroll
-                scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent
-                pr-2"
-            >
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {polls.map((poll) => (
-                  <PollCard key={poll.id} poll={poll} compact />
-                ))}
+            <div className="glass-panel rounded-3xl p-6 md:p-8 lg:p-10 border border-white/10 shadow-2xl backdrop-blur-xl">
+              <div
+                className="h-[600px] md:h-[700px] overflow-y-scroll rounded-3xl polls-column-scroll
+                  scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent
+                  pr-2"
+              >
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                  {polls.map((poll) => (
+                    <PollCard key={poll.id} poll={poll} compact />
+                  ))}
+                </div>
               </div>
             </div>
           </div>
         ) : (
           <div className="max-w-5xl mx-auto">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {polls.map((poll) => (
-                <PollCard key={poll.id} poll={poll} compact />
-              ))}
+            <div className="glass-panel rounded-3xl p-6 md:p-8 lg:p-10 border border-white/10 shadow-2xl backdrop-blur-xl">
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {polls.map((poll) => (
+                  <PollCard key={poll.id} poll={poll} compact />
+                ))}
+              </div>
             </div>
           </div>
         )}
